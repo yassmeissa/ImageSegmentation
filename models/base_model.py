@@ -75,7 +75,7 @@ class BaseClusteringModel(ABC):
     def predict(self, pixels_data: np.ndarray) -> np.ndarray:
         pass
 
-    def segment_image(self, image: Image.Image, shared_palette: np.ndarray = None) -> Image.Image:
+    def segment_image(self, image: Image.Image, shared_palette: np.ndarray = None, pca_data: np.ndarray = None) -> Image.Image:
         if logger:
             logger.info(f"[{self.name}] segment_image() started")
         
@@ -109,15 +109,25 @@ class BaseClusteringModel(ABC):
         if logger:
             logger.info(f"[{self.name}] Flattened shape: {pixels_flat.shape}")
         
+        # Use PCA data if provided, otherwise use original pixels
+        if pca_data is not None:
+            if logger:
+                logger.info(f"[{self.name}] Using PCA-transformed data for clustering")
+            clustering_data = pca_data
+        else:
+            clustering_data = pixels_flat
+        
         try:
             if logger:
                 logger.info(f"[{self.name}] Calling fit()...")
-            self.fit(pixels_flat)
+            self.fit(clustering_data)
             
             if logger:
                 logger.info(f"[{self.name}] Calling predict()...")
-            cluster_labels = self.predict(pixels_flat)
-            del pixels_flat
+            cluster_labels = self.predict(clustering_data)
+            del clustering_data
+            if pca_data is None:
+                del pixels_flat
             gc.collect()
             
             if logger:

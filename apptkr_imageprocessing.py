@@ -170,6 +170,42 @@ class ImageSegmentationApplication:
         sep2 = Frame(left_panel, bg=Theme.MUTED, height=1)
         sep2.pack(fill='x', padx=10, pady=10)
         
+        # PCA Preprocessing section
+        pca_label = Label(
+            left_panel,
+            text="Preprocessing",
+            font=("Segoe UI", 13, "bold"),
+            bg=Theme.PANEL,
+            fg=Theme.ACCENT
+        )
+        pca_label.pack(pady=(10, 5), padx=15)
+        
+        pca_checkbox = Checkbutton(
+            left_panel,
+            text="Use PCA Preprocessing",
+            variable=self.use_pca,
+            bg=Theme.PANEL,
+            fg=Theme.TEXT,
+            selectcolor=Theme.ACCENT,
+            font=("Segoe UI", 10),
+            activebackground=Theme.PANEL,
+            activeforeground=Theme.TEXT
+        )
+        pca_checkbox.pack(anchor='w', padx=15, pady=5)
+        
+        self.pca_info_label = Label(
+            left_panel,
+            text="",
+            font=("Segoe UI", 8),
+            bg=Theme.PANEL,
+            fg=Theme.MUTED
+        )
+        self.pca_info_label.pack(anchor='w', padx=20, pady=(0, 10))
+        
+        # Separator
+        sep3 = Frame(left_panel, bg=Theme.MUTED, height=1)
+        sep3.pack(fill='x', padx=10, pady=10)
+        
         # File operations
         file_label = Label(
             left_panel,
@@ -392,15 +428,60 @@ class ImageSegmentationApplication:
             original = self.image_processor.original_image
             logger.debug(f"[Thread] Image obtained: {original.size}")
             
+            # Apply PCA preprocessing if enabled
+            pca_info = ""
+            pca_data = None
+            if self.use_pca.get():
+                logger.info("[Thread] PCA preprocessing enabled, applying...")
+                try:
+                    # Get pixel data
+                    pixels = original.getdata()
+                    pixel_list = list(pixels)
+                    rgb_data = []
+                    for pixel in pixel_list:
+                        if isinstance(pixel, tuple):
+                            rgb_data.append(pixel[:3])
+                    rgb_array = np.array(rgb_data, dtype=np.float32)
+                    
+                    # Apply PCA
+                    pca = PCAPreprocessing(n_components=self.pca_components)
+                    pca_data = pca.fit_transform(rgb_array)
+                    
+                    # Get variance explained
+                    variance_ratio = pca.get_explained_variance_ratio()
+                    total_variance = pca.get_total_variance_explained()
+                    
+                    pca_info = f"PCA: {total_variance:.1%} variance explained"
+                    logger.info(f"[Thread] PCA applied: {pca_info}")
+                    
+                    # Store PCA transformer for potential future use
+                    self.image_processor.pca_transformer = pca
+                    self.image_processor.pca_data = pca_data
+                    self.image_processor.use_pca = True
+                except Exception as e:
+                    logger.warning(f"[Thread] PCA preprocessing failed: {e}, using original data")
+                    self.image_processor.use_pca = False
+                    pca_data = None
+            else:
+                self.image_processor.use_pca = False
+            
             # Generate palette based on selected palette type
             palette = self._generate_palette(self.current_palette_name, 10)
             
             logger.info(f"[Thread] Calling segment_image() with palette: {self.current_palette_name}...")
-            segmented_image = model.segment_image(original, shared_palette=palette)
+            # Pass PCA data to the model if available
+            segmented_image = model.segment_image(original, shared_palette=palette, pca_data=pca_data)
             logger.info(f"[Thread] segment_image() completed")
             
             logger.debug("[Thread] Storing segmented image...")
             self.image_processor.current_image = segmented_image
+            
+            # Update PCA info label
+            if pca_info:
+                self.pca_info_label.config(text=pca_info, fg=Theme.ACCENT)
+            else:
+                self.pca_info_label.config(text="", fg=Theme.MUTED)
+            
             logger.info(f"[Thread] Processing completed successfully")
         except Exception as e:
             logger.error(f"[Thread] Error processing model: {e}", exc_info=True)
