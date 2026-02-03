@@ -27,17 +27,25 @@ class ImageDisplayCanvas:
         self.canvas.bind("<ButtonPress-1>", self.start_drag)
         self.canvas.bind("<B1-Motion>", self.drag)
 
+    def set_image(self, image, reset_view=True):
+        """Set image and optionally reset zoom/pan"""
+        if image is not self.original_image:
+            self.original_image = image
+            if reset_view:
+                self.scale = 1.0
+                self.pan_x = 0
+                self.pan_y = 0
+        self._render_image()
+
     def display_image(self, image):
         """Display image with zoom and pan support"""
-        self.original_image = image
-        self.scale = 1.0
-        self.pan_x = 0
-        self.pan_y = 0
-        self._render_image()
+        self.set_image(image, reset_view=True)
 
     def _render_image(self):
         """Internal method to render the image with current zoom level"""
         if self.original_image is None:
+            # Clear canvas if no image
+            self.canvas.delete("all")
             return
             
         # Resize image to fit canvas while maintaining aspect ratio
@@ -209,6 +217,7 @@ class ComparisonCanvas:
         self.parent_frame = parent_frame
         self.width = width
         self.height = height
+        self.has_segmentation = False  # Track if we have a segmented image
         
         # Create container frame
         self.container = Frame(parent_frame, bg=Theme.BG)
@@ -216,9 +225,8 @@ class ComparisonCanvas:
         # Original image canvas
         self.canvas_original = ImageDisplayCanvas(self.container, width // 2 - 10, height)
         
-        # Separator
-        separator = Frame(self.container, bg=Theme.ACCENT, width=2)
-        separator.pack(side=LEFT, fill='y', padx=5)
+        # Separator (not packed yet)
+        self.separator = Frame(self.container, bg=Theme.ACCENT, width=2)
         
         # Segmented image canvas
         self.canvas_segmented = ImageDisplayCanvas(self.container, width // 2 - 10, height)
@@ -226,10 +234,49 @@ class ComparisonCanvas:
     def pack(self, **kwargs):
         """Pack the comparison container"""
         self.container.pack(**kwargs)
-        self.canvas_original.pack(side=LEFT, fill='both', expand=True, padx=5)
-        self.canvas_segmented.pack(side=LEFT, fill='both', expand=True, padx=5)
+        # Initially show only original canvas
+        self.canvas_original.canvas.pack(side=LEFT, fill='both', expand=True, padx=5)
     
     def display_images(self, original, segmented):
-        """Display both original and segmented images"""
-        self.canvas_original.display_image(original)
-        self.canvas_segmented.display_image(segmented)
+        """Display images based on segmentation state"""
+
+        # Clear everything first (IMPORTANT)
+        for widget in self.container.winfo_children():
+            widget.pack_forget()
+
+        if original is not None and segmented is None:
+            # BEFORE segmentation → original only (full width)
+            self.canvas_original.canvas.pack(
+                side=LEFT, fill='both', expand=True, padx=5
+            )
+            
+            # Render after layout is calculated
+            self.canvas_original.canvas.after(10, lambda: self.canvas_original.set_image(original, reset_view=True))
+            self.canvas_segmented.set_image(None, reset_view=True)
+
+            self.has_segmentation = False
+
+        elif original is not None and segmented is not None:
+            # AFTER segmentation → original LEFT | segmented RIGHT
+            # Pack first so canvas gets correct dimensions before rendering
+            self.canvas_original.canvas.pack(
+                side=LEFT, fill='both', expand=True, padx=5
+            )
+            self.separator.pack(
+                side=LEFT, fill='y', padx=5
+            )
+            self.canvas_segmented.canvas.pack(
+                side=LEFT, fill='both', expand=True, padx=5
+            )
+            
+            # Render after layout is calculated (10ms delay allows Tkinter to compute dimensions)
+            self.canvas_original.canvas.after(10, lambda: self.canvas_original.set_image(original, reset_view=True))
+            self.canvas_segmented.canvas.after(10, lambda: self.canvas_segmented.set_image(segmented, reset_view=True))
+
+            self.has_segmentation = True
+
+        else:
+            # No image
+            self.canvas_original.set_image(None, reset_view=True)
+            self.canvas_segmented.set_image(None, reset_view=True)
+            self.has_segmentation = False

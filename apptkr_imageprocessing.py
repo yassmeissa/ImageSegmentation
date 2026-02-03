@@ -1,10 +1,17 @@
-from tkinter import Tk, Menu, Frame, Label, filedialog, messagebox, Canvas, Checkbutton, IntVar, Toplevel, Listbox, Scrollbar, Radiobutton, StringVar, Text, SINGLE, END, Y, LEFT, RIGHT, BOTH, DISABLED
-from PIL import Image, ImageTk
+# Fix matplotlib compatibility with macOS BEFORE any other imports
 import os
-import threading
-import numpy as np
+import sys
+
+# Set matplotlib backend before importing anything else
+import matplotlib
+matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.cm as cm
 from matplotlib.colors import rgb_to_hsv, hsv_to_rgb
+
+from tkinter import Tk, Menu, Frame, Label, filedialog, messagebox, Canvas, Checkbutton, IntVar, Toplevel, Listbox, Scrollbar, Radiobutton, StringVar, Text, SINGLE, END, Y, LEFT, RIGHT, BOTH, DISABLED
+from PIL import Image, ImageTk
+import threading
+import numpy as np
 from image_processor import ImageProcessor
 from ui_components import ImageDisplayCanvas, ModelButton, ParameterSlider, ComparisonCanvas
 from models.kmeans_model import KMeansClusteringModel
@@ -245,6 +252,11 @@ class ImageSegmentationApplication:
         if file_path:
             try:
                 self.image_processor.load_from_file(file_path)
+
+                # ✅ AJOUT IMPORTANT
+                self.image_processor.current_image = None
+                self.comparison_canvas.has_segmentation = False
+
                 self.refresh_display()
             except Exception as e:
                 print(f"Error loading image: {e}")
@@ -435,8 +447,13 @@ class ImageSegmentationApplication:
         current_image = self.image_processor.get_current_image()
         original_image = self.image_processor.original_image
         
-        # Display both original and segmented images
-        self.comparison_canvas.display_images(original_image, current_image)
+        # Display images based on segmentation state
+        if current_image is None:
+            # Before segmentation: show only original image on left
+            self.comparison_canvas.display_images(original_image, None)
+        else:
+            # After segmentation: show both original and segmented
+            self.comparison_canvas.display_images(original_image, current_image)
         
         if not self.is_processing:
             self.status_label.config(text="Ready")

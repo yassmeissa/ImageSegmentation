@@ -2,7 +2,7 @@
 Fenêtre de configuration unifiée : Paramètres + Palette
 """
 
-from tkinter import Toplevel, Frame, Label, Scale, Button, Radiobutton, StringVar
+from tkinter import Toplevel, Frame, Label, Scale, Button, Radiobutton, StringVar, Canvas, Scrollbar, VERTICAL
 from config import AppConfig
 from theme import Theme
 
@@ -40,10 +40,30 @@ class ConfigurationDialog(Toplevel):
         self.grab_set()
     
     def setup_ui(self):
-        """Configurer l'interface"""
+        """Configurer l'interface avec scroll"""
+        # Container principal
+        main_container = Frame(self, bg=Theme.BG)
+        main_container.pack(fill='both', expand=True, padx=0, pady=0)
+        
+        # Canvas pour le scroll
+        canvas = Canvas(main_container, bg=Theme.BG, highlightthickness=0)
+        scrollbar = Scrollbar(main_container, orient=VERTICAL, command=canvas.yview)
+        scrollable_frame = Frame(canvas, bg=Theme.BG)
+        
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+        
+        # Pack canvas et scrollbar
+        canvas.pack(side="left", fill="both", expand=True, padx=15, pady=15)
+        scrollbar.pack(side="right", fill="y", padx=(0, 15), pady=15)
+        
         # Frame principal avec scroll
-        main_frame = Frame(self, bg=Theme.BG)
-        main_frame.pack(fill='both', expand=True, padx=15, pady=15)
+        main_frame = scrollable_frame
         
         # ==================== SECTION PARAMÈTRES ====================
         params_label = Label(
@@ -386,7 +406,9 @@ class ConfigurationDialog(Toplevel):
             text="Apply",
             font=("Segoe UI", 10, "bold"),
             bg=Theme.ACCENT,
-            fg="#ffffff",
+            fg="#00ffff",
+            activeforeground="#00ffff",
+            activebackground="#0a35a6",
             command=self.on_ok,
             width=12
         )
@@ -398,10 +420,28 @@ class ConfigurationDialog(Toplevel):
             font=("Segoe UI", 10),
             bg=Theme.MUTED,
             fg="#000000",
+            activeforeground="#000000",
+            activebackground="#7e7e7e",
             command=self.on_cancel,
             width=12
         )
         cancel_btn.pack(side='left', padx=5)
+        
+        # ==================== MOUSEWHEEL BINDING ====================
+        # Bind mousewheel sur tous les enfants après création complète
+        def on_mousewheel(event):
+            canvas.yview_scroll(int(-1*(event.delta/120)), "units")
+        
+        def bind_to_all_children(widget):
+            """Récursivement bind mousewheel à tous les enfants"""
+            widget.bind("<MouseWheel>", on_mousewheel)
+            widget.bind("<Button-4>", lambda e: canvas.yview_scroll(-1, "units"))
+            widget.bind("<Button-5>", lambda e: canvas.yview_scroll(1, "units"))
+            for child in widget.winfo_children():
+                bind_to_all_children(child)
+        
+        # Appliquer le binding à tous les widgets du frame scrollable
+        bind_to_all_children(scrollable_frame)
     
     def on_clusters_changed(self, value):
         """Callback pour le changement du slider clusters"""
