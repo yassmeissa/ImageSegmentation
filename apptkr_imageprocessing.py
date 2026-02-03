@@ -796,10 +796,10 @@ Variance Explained by Component:
         quality_value_label.pack(side=LEFT, padx=10)
         
         # Auto-naming option
-        auto_name_var = IntVar(value=0)
+        auto_name_var = IntVar(value=1)
         Checkbutton(
             content_frame,
-            text="Auto-generate filename with timestamp",
+            text="Auto-generate filename with image, model & params",
             variable=auto_name_var,
             bg=Theme.PANEL,
             fg=Theme.TEXT,
@@ -847,32 +847,39 @@ Variance Explained by Component:
                 # Get model name
                 model_name = self.active_model_name or "model"
                 
+                # Get palette name
+                palette_name = self.current_palette_name or "viridis"
+                
                 # Extract parameters from params_info_label and format them
                 params_text = self.params_info_label.cget("text")
                 params_str = ""
                 
                 if params_text:
-                    # Parse parameters: "Clusters: 5 | n_init: 30 | max_iter: 500"
+                    # Parse parameters: "Clusters: 5 | n_init: 30 | max_iter: 500 | Palette: viridis"
                     # Convert to: "clusters-5_n_init-30_max_iter-500"
                     parts = params_text.split(" | ")
                     param_list = []
                     
                     for part in parts:
-                        if "Palette:" not in part:  # Skip palette in filename
+                        if "Palette:" not in part:  # Skip palette in this loop (we add it separately)
                             # Convert "Clusters: 5" to "clusters-5"
                             if ": " in part:
                                 key, value = part.split(": ", 1)
                                 key_clean = key.lower().replace(" ", "_")
-                                value_clean = value.strip()
+                                value_clean = value.strip().replace(" ", "-")
                                 param_list.append(f"{key_clean}-{value_clean}")
                     
                     if param_list:
                         params_str = "_" + "_".join(param_list)
                 
-                # Create filename: segmented-image-original_name_model_params.ext
-                default_filename = f"segmented-image-{original_filename}_{model_name}{params_str}.{ext}"
+                # Create filename with all components:
+                # segmented_<original>_<model>_<params>_palette-<palette>.<ext>
+                default_filename = f"segmented_{original_filename}_{model_name}{params_str}_palette-{palette_name}.{ext}"
+                
+                # Clean up filename (remove any problematic characters)
+                default_filename = default_filename.replace(" ", "-").replace(":", "-")
             else:
-                default_filename = f"segmented-image.{ext}"
+                default_filename = f"segmented_image.{ext}"
             
             # Open file dialog
             file_path = filedialog.asksaveasfilename(
