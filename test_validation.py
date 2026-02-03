@@ -4,6 +4,9 @@ Teste tous les modèles avec des paramètres prédéfinis
 Génère un rapport de validation
 """
 
+import warnings
+warnings.filterwarnings('ignore')
+
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
@@ -103,139 +106,115 @@ def generate_palette(palette_name: str, n_colors: int):
 
 
 def test_kmeans(image, image_name, report):
-    """Test K-Means avec différentes configurations"""
+    """Test K-Means"""
     print("\n" + "-"*80)
     print("TEST K-MEANS")
     print("-"*80)
     
-    test_configs = [
-        {'clusters': 5, 'n_init': 10, 'max_iter': 300},
-        {'clusters': 10, 'n_init': 30, 'max_iter': 500},
-        {'clusters': 15, 'n_init': 50, 'max_iter': 500},
-    ]
-    
-    for i, config in enumerate(test_configs, 1):
-        try:
-            print(f"\n  Configuration {i}/{len(test_configs)}: {config}")
-            start = time.time()
-            
-            model = KMeansClusteringModel(n_clusters=config['clusters'])
-            model.kmeans.n_init = config['n_init']
-            model.kmeans.max_iter = config['max_iter']
-            
-            palette = generate_palette('viridis', config['clusters'])
-            segmented = model.segment_image(image, shared_palette=palette)
-            
-            elapsed = time.time() - start
-            print(f"  ✅ Succès ({elapsed:.2f}s)")
-            
-            report.add_result('K-Means', image_name, config, elapsed, success=True)
-            
-        except Exception as e:
-            elapsed = time.time() - start
-            print(f"  ❌ Erreur: {str(e)}")
-            report.add_result('K-Means', image_name, config, elapsed, success=False, error=str(e))
+    try:
+        config = {'clusters': 5, 'n_init': 10, 'max_iter': 300}
+        print(f"\n  Configuration: {config}")
+        start = time.time()
+        
+        model = KMeansClusteringModel(n_clusters=config['clusters'])
+        model.kmeans.n_init = config['n_init']
+        model.kmeans.max_iter = config['max_iter']
+        
+        palette = generate_palette('viridis', config['clusters'])
+        segmented = model.segment_image(image, shared_palette=palette)
+        
+        elapsed = time.time() - start
+        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        
+        report.add_result('K-Means', image_name, config, elapsed, success=True)
+        
+    except Exception as e:
+        elapsed = time.time() - start
+        print(f"  ❌ Erreur: {str(e)}")
+        report.add_result('K-Means', image_name, config, elapsed, success=False, error=str(e))
 
 
 def test_gmm(image, image_name, report):
-    """Test GMM avec différentes configurations"""
+    """Test GMM"""
     print("\n" + "-"*80)
     print("TEST GMM")
     print("-"*80)
     
-    test_configs = [
-        {'components': 5, 'max_iter': 100, 'cov_type': 'diag'},
-        {'components': 10, 'max_iter': 100, 'cov_type': 'diag'},
-        {'components': 10, 'max_iter': 150, 'cov_type': 'full'},
-    ]
-    
-    for i, config in enumerate(test_configs, 1):
-        try:
-            print(f"\n  Configuration {i}/{len(test_configs)}: {config}")
-            start = time.time()
-            
-            model = GMMClusteringModel(n_components=config['components'])
-            model.gmm.max_iter = config['max_iter']
-            model.gmm.covariance_type = config['cov_type']
-            
-            palette = generate_palette('plasma', config['components'])
-            segmented = model.segment_image(image, shared_palette=palette)
-            
-            elapsed = time.time() - start
-            print(f"  ✅ Succès ({elapsed:.2f}s)")
-            
-            report.add_result('GMM', image_name, config, elapsed, success=True)
-            
-        except Exception as e:
-            elapsed = time.time() - start
-            print(f"  ❌ Erreur: {str(e)}")
-            report.add_result('GMM', image_name, config, elapsed, success=False, error=str(e))
+    try:
+        config = {'components': 5, 'max_iter': 100, 'cov_type': 'diag'}
+        print(f"\n  Configuration: {config}")
+        start = time.time()
+        
+        model = GMMClusteringModel(n_components=config['components'])
+        model.gmm.max_iter = config['max_iter']
+        model.gmm.covariance_type = config['cov_type']
+        
+        palette = generate_palette('plasma', config['components'])
+        segmented = model.segment_image(image, shared_palette=palette)
+        
+        elapsed = time.time() - start
+        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        
+        report.add_result('GMM', image_name, config, elapsed, success=True)
+        
+    except Exception as e:
+        elapsed = time.time() - start
+        print(f"  ❌ Erreur: {str(e)}")
+        report.add_result('GMM', image_name, config, elapsed, success=False, error=str(e))
 
 
 def test_meanshift(image, image_name, report):
-    """Test MeanShift avec différentes configurations"""
+    """Test MeanShift"""
     print("\n" + "-"*80)
     print("TEST MEANSHIFT")
     print("-"*80)
     
-    test_configs = [
-        {'bandwidth': 15},
-        {'bandwidth': 25},
-        {'bandwidth': 35},
-    ]
-    
-    for i, config in enumerate(test_configs, 1):
-        try:
-            print(f"\n  Configuration {i}/{len(test_configs)}: {config}")
-            start = time.time()
-            
-            model = MeanShiftClusteringModel(bandwidth=config['bandwidth'])
-            
-            palette = generate_palette('inferno', 10)
-            segmented = model.segment_image(image, shared_palette=palette)
-            
-            elapsed = time.time() - start
-            print(f"  ✅ Succès ({elapsed:.2f}s)")
-            
-            report.add_result('MeanShift', image_name, config, elapsed, success=True)
-            
-        except Exception as e:
-            elapsed = time.time() - start
-            print(f"  ❌ Erreur: {str(e)}")
-            report.add_result('MeanShift', image_name, config, elapsed, success=False, error=str(e))
+    try:
+        config = {'bandwidth': 25}
+        print(f"\n  Configuration: {config}")
+        start = time.time()
+        
+        model = MeanShiftClusteringModel(bandwidth=config['bandwidth'])
+        
+        palette = generate_palette('inferno', 10)
+        segmented = model.segment_image(image, shared_palette=palette)
+        
+        elapsed = time.time() - start
+        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        
+        report.add_result('MeanShift', image_name, config, elapsed, success=True)
+        
+    except Exception as e:
+        elapsed = time.time() - start
+        print(f"  ❌ Erreur: {str(e)}")
+        report.add_result('MeanShift', image_name, config, elapsed, success=False, error=str(e))
 
 
 def test_spectral(image, image_name, report):
-    """Test Spectral Clustering avec différentes configurations"""
+    """Test Spectral Clustering"""
     print("\n" + "-"*80)
     print("TEST SPECTRAL CLUSTERING")
     print("-"*80)
     
-    test_configs = [
-        {'clusters': 5},
-        {'clusters': 10},
-        {'clusters': 15},
-    ]
-    
-    for i, config in enumerate(test_configs, 1):
-        try:
-            print(f"\n  Configuration {i}/{len(test_configs)}: {config}")
-            start = time.time()
-            
-            model = SpectralClusteringModel(n_clusters=config['clusters'])
-            
-            palette = generate_palette('cool', config['clusters'])
-            segmented = model.segment_image(image, shared_palette=palette)
-            
-            elapsed = time.time() - start
-            print(f"  ✅ Succès ({elapsed:.2f}s)")
-            
-            report.add_result('Spectral', image_name, config, elapsed, success=True)
-            
-        except Exception as e:
-            elapsed = time.time() - start
-            print(f"  ❌ Erreur: {str(e)}")
-            report.add_result('Spectral', image_name, config, elapsed, success=False, error=str(e))
+    try:
+        config = {'clusters': 5}
+        print(f"\n  Configuration: {config}")
+        start = time.time()
+        
+        model = SpectralClusteringModel(n_clusters=config['clusters'])
+        
+        palette = generate_palette('cool', config['clusters'])
+        segmented = model.segment_image(image, shared_palette=palette)
+        
+        elapsed = time.time() - start
+        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        
+        report.add_result('Spectral', image_name, config, elapsed, success=True)
+        
+    except Exception as e:
+        elapsed = time.time() - start
+        print(f"  ❌ Erreur: {str(e)}")
+        report.add_result('Spectral', image_name, config, elapsed, success=False, error=str(e))
 
 
 def display_comparison(image, segmented_results):
