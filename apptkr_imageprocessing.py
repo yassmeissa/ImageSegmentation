@@ -257,6 +257,8 @@ class ImageSegmentationApplication:
         if file_path:
             try:
                 self.image_processor.load_from_file(file_path)
+                # Store the original image path for auto-naming
+                self.image_processor.original_image_path = file_path
 
                 # ✅ Reset segmentation state
                 self.image_processor.current_image = None
@@ -700,12 +702,17 @@ Variance Explained by Component:
             return
         
         from datetime import datetime
+        from tkinter import Scale, HORIZONTAL
         
         save_window = Toplevel(self.window)
         save_window.title("Advanced Save Options")
-        save_window.geometry("500x450")
+        save_window.geometry("520x650")
         save_window.resizable(False, False)
         save_window.configure(bg=Theme.PANEL)
+        
+        # Make window modal
+        save_window.transient(self.window)
+        save_window.grab_set()
         
         # Title
         title_label = Label(
@@ -715,13 +722,18 @@ Variance Explained by Component:
             bg=Theme.PANEL,
             fg=Theme.ACCENT
         )
-        title_label.pack(pady=15, padx=15)
+        title_label.pack(pady=15, padx=15, fill='x')
+        
+        # Separator
+        sep1 = Frame(save_window, bg=Theme.MUTED, height=1)
+        sep1.pack(fill='x', padx=10)
+        
+        # Content frame
+        content_frame = Frame(save_window, bg=Theme.PANEL)
+        content_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
         # Format selection
-        format_frame = Frame(save_window, bg=Theme.PANEL)
-        format_frame.pack(fill='x', padx=20, pady=10)
-        
-        Label(format_frame, text="📷 Image Format:", font=("Segoe UI", 11, "bold"), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w', pady=(0, 8))
+        Label(content_frame, text="📷 Image Format:", font=("Segoe UI", 11, "bold"), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w', pady=(0, 8))
         
         format_var = StringVar(value="png")
         
@@ -733,91 +745,219 @@ Variance Explained by Component:
         ]
         
         for text, value in formats:
-            Radiobutton(save_window, text=text, variable=format_var, value=value, bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w', padx=30, pady=4)
+            Radiobutton(
+                content_frame, 
+                text=text, 
+                variable=format_var, 
+                value=value, 
+                bg=Theme.PANEL, 
+                fg=Theme.TEXT, 
+                font=("Segoe UI", 10),
+                selectcolor=Theme.ACCENT,
+                activebackground=Theme.PANEL,
+                activeforeground=Theme.TEXT
+            ).pack(anchor='w', padx=20, pady=5)
         
-        # JPEG Quality slider (only show when JPEG is selected)
-        quality_frame = Frame(save_window, bg=Theme.PANEL)
-        quality_frame.pack(fill='x', padx=30, pady=10)
+        # JPEG Quality section
+        quality_frame = Frame(content_frame, bg=Theme.PANEL)
+        quality_frame.pack(fill='x', pady=15)
         
-        Label(quality_frame, text="JPEG Quality:", font=("Segoe UI", 10), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w')
+        Label(quality_frame, text="JPEG Quality:", font=("Segoe UI", 10, "bold"), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w')
+        
+        # Create quality slider manually (fix the IntVar issue)
         quality_var = IntVar(value=95)
-        quality_slider = ParameterSlider(quality_frame, "Quality", 1, 100, quality_var, step=1)
-        quality_slider.pack(anchor='w', pady=5)
+        quality_slider_container = Frame(quality_frame, bg=Theme.PANEL)
+        quality_slider_container.pack(fill='x', pady=5)
+        
+        quality_scale = Scale(
+            quality_slider_container,
+            from_=1,
+            to=100,
+            orient=HORIZONTAL,
+            variable=quality_var,
+            length=300,
+            bg=Theme.PANEL,
+            fg=Theme.TEXT,
+            troughcolor=Theme.MUTED,
+            activebackground=Theme.ACCENT,
+            highlightthickness=0,
+            font=("Segoe UI", 9)
+        )
+        quality_scale.pack(side=LEFT, padx=5)
+        
+        quality_value_label = Label(
+            quality_slider_container, 
+            textvariable=quality_var, 
+            font=("Segoe UI", 10, "bold"), 
+            bg=Theme.PANEL, 
+            fg=Theme.ACCENT, 
+            width=4
+        )
+        quality_value_label.pack(side=LEFT, padx=10)
         
         # Auto-naming option
-        auto_name_frame = Frame(save_window, bg=Theme.PANEL)
-        auto_name_frame.pack(fill='x', padx=20, pady=10)
-        
         auto_name_var = IntVar(value=0)
         Checkbutton(
-            auto_name_frame,
+            content_frame,
             text="Auto-generate filename with timestamp",
             variable=auto_name_var,
             bg=Theme.PANEL,
             fg=Theme.TEXT,
-            selectcolor=Theme.ACCENT
-        ).pack(anchor='w', pady=5)
+            selectcolor=Theme.ACCENT,
+            font=("Segoe UI", 10),
+            activebackground=Theme.PANEL,
+            activeforeground=Theme.TEXT
+        ).pack(anchor='w', pady=10)
         
         # Info text
-        info_text = Frame(save_window, bg=Theme.MUTED, height=1)
-        info_text.pack(fill='x', padx=20, pady=(10, 0))
-        
         info_label = Label(
-            save_window,
+            content_frame,
             text="ℹ️  PNG: Best quality, larger file. JPEG: Smaller file, slight quality loss.",
             font=("Segoe UI", 9),
             bg=Theme.PANEL,
             fg=Theme.MUTED,
-            wraplength=400,
+            wraplength=450,
             justify='left'
         )
-        info_label.pack(pady=10, padx=20)
+        info_label.pack(pady=10, anchor='w')
         
         def save_with_format():
+            """Handle save operation"""
             format_choice = format_var.get()
-            quality = quality_var.get() if format_choice == "jpg" else 95
+            quality = quality_var.get()
+            
+            # Determine file extension
+            if format_choice == "jpg":
+                ext = "jpg"
+                file_types = (("JPEG images", "*.jpg"), ("All files", "*.*"))
+            elif format_choice == "bmp":
+                ext = "bmp"
+                file_types = (("BMP images", "*.bmp"), ("All files", "*.*"))
+            else:  # png or png_hires
+                ext = "png"
+                file_types = (("PNG images", "*.png"), ("All files", "*.*"))
             
             # Generate filename if auto-naming is enabled
             if auto_name_var.get():
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                ext = "jpg" if format_choice == "jpg" else "png" if format_choice != "bmp" else "bmp"
-                model_name = self.active_model_name or "segmented"
-                default_filename = f"segmentation_{model_name}_{timestamp}.{ext}"
-                file_path = filedialog.asksaveasfilename(
-                    defaultextension=f".{ext}",
-                    initialfile=default_filename,
-                    filetypes=(("Image files", f"*.{ext}"), ("All files", "*.*"))
-                )
+                # Get original image filename without extension
+                original_filename = "image"
+                if hasattr(self.image_processor, 'original_image_path') and self.image_processor.original_image_path:
+                    original_filename = os.path.splitext(os.path.basename(self.image_processor.original_image_path))[0]
+                
+                # Get model name
+                model_name = self.active_model_name or "model"
+                
+                # Extract parameters from params_info_label and format them
+                params_text = self.params_info_label.cget("text")
+                params_str = ""
+                
+                if params_text:
+                    # Parse parameters: "Clusters: 5 | n_init: 30 | max_iter: 500"
+                    # Convert to: "clusters-5_n_init-30_max_iter-500"
+                    parts = params_text.split(" | ")
+                    param_list = []
+                    
+                    for part in parts:
+                        if "Palette:" not in part:  # Skip palette in filename
+                            # Convert "Clusters: 5" to "clusters-5"
+                            if ": " in part:
+                                key, value = part.split(": ", 1)
+                                key_clean = key.lower().replace(" ", "_")
+                                value_clean = value.strip()
+                                param_list.append(f"{key_clean}-{value_clean}")
+                    
+                    if param_list:
+                        params_str = "_" + "_".join(param_list)
+                
+                # Create filename: segmented-image-original_name_model_params.ext
+                default_filename = f"segmented-image-{original_filename}_{model_name}{params_str}.{ext}"
             else:
-                file_path = filedialog.asksaveasfilename(
-                    defaultextension=".png" if format_choice != "jpg" else ".jpg",
-                    filetypes=(("PNG images", "*.png"), ("JPEG images", "*.jpg"), ("BMP images", "*.bmp"), ("All files", "*.*"))
-                )
+                default_filename = f"segmented-image.{ext}"
+            
+            # Open file dialog
+            file_path = filedialog.asksaveasfilename(
+                parent=save_window,
+                defaultextension=f".{ext}",
+                initialfile=default_filename,
+                filetypes=file_types,
+                title="Save Image As"
+            )
             
             if file_path:
                 try:
                     if format_choice == "png_hires":
-                        # Save with higher DPI info
-                        image_to_save.save(file_path, dpi=(300, 300))
-                        messagebox.showinfo("✅ Success", f"High-resolution image saved:\n{file_path}")
+                        # Save PNG with higher DPI metadata
+                        image_to_save.save(file_path, "PNG", dpi=(300, 300))
+                        messagebox.showinfo("✅ Success", f"High-resolution PNG saved:\n{file_path}")
                     elif format_choice == "jpg":
-                        # Save JPEG with specified quality
-                        image_to_save.save(file_path, "JPEG", quality=quality)
-                        messagebox.showinfo("✅ Success", f"Image saved (Quality: {quality}):\n{file_path}")
-                    else:
-                        image_to_save.save(file_path)
-                        messagebox.showinfo("✅ Success", f"Image saved:\n{file_path}")
+                        # Convert to RGB if necessary (JPEG doesn't support RGBA)
+                        if image_to_save.mode == 'RGBA':
+                            rgb_image = image_to_save.convert('RGB')
+                            rgb_image.save(file_path, "JPEG", quality=quality, optimize=True)
+                        else:
+                            image_to_save.save(file_path, "JPEG", quality=quality, optimize=True)
+                        messagebox.showinfo("✅ Success", f"JPEG saved (Quality: {quality}):\n{file_path}")
+                    elif format_choice == "bmp":
+                        image_to_save.save(file_path, "BMP")
+                        messagebox.showinfo("✅ Success", f"BMP saved:\n{file_path}")
+                    else:  # png
+                        image_to_save.save(file_path, "PNG")
+                        messagebox.showinfo("✅ Success", f"PNG saved:\n{file_path}")
+                    
                     save_window.destroy()
                 except Exception as e:
                     messagebox.showerror("❌ Error", f"Could not save image:\n{str(e)}")
+                    import traceback
+                    traceback.print_exc()
         
-        # Buttons
+        # Separator before buttons
+        sep2 = Frame(save_window, bg=Theme.MUTED, height=1)
+        sep2.pack(fill='x', padx=10, pady=10)
+        
+        # Buttons frame
         button_frame = Frame(save_window, bg=Theme.PANEL)
-        button_frame.pack(fill='x', padx=20, pady=20)
+        button_frame.pack(fill='x', padx=15, pady=15)
         
-        ModelButton(button_frame, "💾 Save", save_with_format).grid_layout(row=0, column=0, padx=5, sticky='e')
-        ModelButton(button_frame, "❌ Cancel", save_window.destroy).grid_layout(row=0, column=1, padx=5, sticky='w')
-
+        # Use standard Button widgets instead of ModelButton
+        from tkinter import Button
+        
+        save_btn = Button(
+            button_frame,
+            text="💾 Save Image",
+            command=save_with_format,
+            font=("Segoe UI", 11, "bold"),
+            bg="#4CAF50",
+            fg="#FFFFFF",
+            activebackground="#45a049",
+            activeforeground="#FFFFFF",
+            relief="raised",
+            padx=20,
+            pady=10,
+            cursor="hand2",
+            borderwidth=2
+        )
+        save_btn.grid(row=0, column=0, padx=5, sticky='ew')
+        
+        cancel_btn = Button(
+            button_frame,
+            text="❌ Cancel",
+            command=save_window.destroy,
+            font=("Segoe UI", 11),
+            bg="#9E9E9E",
+            fg="#FFFFFF",
+            activebackground="#757575",
+            activeforeground="#FFFFFF",
+            relief="raised",
+            padx=20,
+            pady=10,
+            cursor="hand2",
+            borderwidth=2
+        )
+        cancel_btn.grid(row=0, column=1, padx=5, sticky='ew')
+        
+        # Make columns equal width
+        button_frame.grid_columnconfigure(0, weight=1)
+        button_frame.grid_columnconfigure(1, weight=1)
 
 if __name__ == '__main__':
     ImageSegmentationApplication()
