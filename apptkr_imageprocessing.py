@@ -190,6 +190,9 @@ class ImageSegmentationApplication:
         save_btn = ModelButton(operations_frame, "Save Result", self.save_result_image)
         save_btn.grid_layout(row=1, column=0, padx=5, pady=5)
         
+        save_adv_btn = ModelButton(operations_frame, "Save (Advanced)", self.save_result_advanced)
+        save_adv_btn.grid_layout(row=2, column=0, padx=5, pady=5)
+        
         # Right panel - Canvas with comparison
         right_panel = Frame(content_frame, bg=Theme.BG)
         right_panel.pack(side='right', fill='both', expand=True)
@@ -497,20 +500,39 @@ class ImageSegmentationApplication:
             self.status_label.config(text="Ready")
 
     def save_result_image(self):
+        """Sauvegarde rapide de l'image segmentée"""
         if self.image_processor.current_image is None:
+            messagebox.showwarning("⚠️  Warning", "No result image to save. Process an image first!")
             return
+        
+        from datetime import datetime
+        
+        # Generate default filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        model_name = self.active_model_name or "segmented"
+        default_filename = f"segmentation_{model_name}_{timestamp}.png"
         
         file_path = filedialog.asksaveasfilename(
             defaultextension=".png",
-            filetypes=(("PNG images", "*.png"), ("JPEG images", "*.jpg"), ("All files", "*.*"))
+            initialfile=default_filename,
+            filetypes=(("PNG images", "*.png"), ("JPEG images", "*.jpg"), ("BMP images", "*.bmp"), ("All files", "*.*"))
         )
         
         if file_path:
             try:
                 self.image_processor.save_current_image(file_path)
-                print(f"Image saved: {file_path}")
+                file_size = os.path.getsize(file_path) / 1024  # Size in KB
+                messagebox.showinfo(
+                    "✅ Success",
+                    f"Image saved successfully!\n\n"
+                    f"File: {os.path.basename(file_path)}\n"
+                    f"Size: {file_size:.1f} KB\n"
+                    f"Location: {os.path.dirname(file_path)}"
+                )
+                print(f"✅ Image saved: {file_path}")
             except Exception as e:
-                print(f"Error saving image: {e}")
+                messagebox.showerror("❌ Error", f"Could not save image:\n{str(e)}")
+                print(f"❌ Error saving image: {e}")
 
     def compare_all_models(self):
         """Lance le script de comparaison de tous les modèles"""
@@ -713,48 +735,124 @@ Variance Explained by Component:
             messagebox.showwarning("Warning", "No result image to save")
             return
         
+        from datetime import datetime
+        
         save_window = Toplevel(self.window)
         save_window.title("Advanced Save Options")
-        save_window.geometry("400x300")
+        save_window.geometry("500x450")
+        save_window.resizable(False, False)
+        save_window.configure(bg=Theme.PANEL)
         
-        Label(save_window, text="Select Save Format:", font=("Segoe UI", 12, "bold")).pack(pady=10)
+        # Title
+        title_label = Label(
+            save_window, 
+            text="📁 Advanced Save Options",
+            font=("Segoe UI", 14, "bold"),
+            bg=Theme.PANEL,
+            fg=Theme.ACCENT
+        )
+        title_label.pack(pady=15, padx=15)
+        
+        # Format selection
+        format_frame = Frame(save_window, bg=Theme.PANEL)
+        format_frame.pack(fill='x', padx=20, pady=10)
+        
+        Label(format_frame, text="📷 Image Format:", font=("Segoe UI", 11, "bold"), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w', pady=(0, 8))
         
         format_var = StringVar(value="png")
         
         formats = [
-            ("PNG (Standard)", "png"),
-            ("JPEG (Compressed)", "jpg"),
+            ("PNG (Standard) - Best for quality", "png"),
+            ("JPEG (Compressed) - Smaller file size", "jpg"),
             ("PNG (High Resolution - 300 DPI)", "png_hires"),
+            ("BMP (Uncompressed) - No quality loss", "bmp"),
         ]
         
         for text, value in formats:
-            Radiobutton(save_window, text=text, variable=format_var, value=value).pack(anchor='w', padx=20, pady=5)
+            Radiobutton(save_window, text=text, variable=format_var, value=value, bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w', padx=30, pady=4)
+        
+        # JPEG Quality slider (only show when JPEG is selected)
+        quality_frame = Frame(save_window, bg=Theme.PANEL)
+        quality_frame.pack(fill='x', padx=30, pady=10)
+        
+        Label(quality_frame, text="JPEG Quality:", font=("Segoe UI", 10), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w')
+        quality_var = IntVar(value=95)
+        quality_slider = ParameterSlider(quality_frame, "Quality", 1, 100, quality_var, step=1)
+        quality_slider.pack(anchor='w', pady=5)
+        
+        # Auto-naming option
+        auto_name_frame = Frame(save_window, bg=Theme.PANEL)
+        auto_name_frame.pack(fill='x', padx=20, pady=10)
+        
+        auto_name_var = IntVar(value=0)
+        Checkbutton(
+            auto_name_frame,
+            text="Auto-generate filename with timestamp",
+            variable=auto_name_var,
+            bg=Theme.PANEL,
+            fg=Theme.TEXT,
+            selectcolor=Theme.ACCENT
+        ).pack(anchor='w', pady=5)
+        
+        # Info text
+        info_text = Frame(save_window, bg=Theme.MUTED, height=1)
+        info_text.pack(fill='x', padx=20, pady=(10, 0))
+        
+        info_label = Label(
+            save_window,
+            text="ℹ️  PNG: Best quality, larger file. JPEG: Smaller file, slight quality loss.",
+            font=("Segoe UI", 9),
+            bg=Theme.PANEL,
+            fg=Theme.MUTED,
+            wraplength=400,
+            justify='left'
+        )
+        info_label.pack(pady=10, padx=20)
         
         def save_with_format():
             format_choice = format_var.get()
-            file_path = filedialog.asksaveasfilename(
-                defaultextension=".png" if format_choice != "jpg" else ".jpg",
-                filetypes=(("PNG images", "*.png"), ("JPEG images", "*.jpg"), ("All files", "*.*"))
-            )
+            quality = quality_var.get() if format_choice == "jpg" else 95
+            
+            # Generate filename if auto-naming is enabled
+            if auto_name_var.get():
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                ext = "jpg" if format_choice == "jpg" else "png" if format_choice != "bmp" else "bmp"
+                model_name = self.active_model_name or "segmented"
+                default_filename = f"segmentation_{model_name}_{timestamp}.{ext}"
+                file_path = filedialog.asksaveasfilename(
+                    defaultextension=f".{ext}",
+                    initialfile=default_filename,
+                    filetypes=(("Image files", f"*.{ext}"), ("All files", "*.*"))
+                )
+            else:
+                file_path = filedialog.asksaveasfilename(
+                    defaultextension=".png" if format_choice != "jpg" else ".jpg",
+                    filetypes=(("PNG images", "*.png"), ("JPEG images", "*.jpg"), ("BMP images", "*.bmp"), ("All files", "*.*"))
+                )
             
             if file_path:
                 try:
                     if format_choice == "png_hires":
                         # Save with higher DPI info
                         self.image_processor.current_image.save(file_path, dpi=(300, 300))
-                        messagebox.showinfo("Success", f"High-resolution image saved to {file_path}")
+                        messagebox.showinfo("✅ Success", f"High-resolution image saved:\n{file_path}")
+                    elif format_choice == "jpg":
+                        # Save JPEG with specified quality
+                        self.image_processor.current_image.save(file_path, "JPEG", quality=quality)
+                        messagebox.showinfo("✅ Success", f"Image saved (Quality: {quality}):\n{file_path}")
                     else:
                         self.image_processor.save_current_image(file_path)
-                        messagebox.showinfo("Success", f"Image saved to {file_path}")
+                        messagebox.showinfo("✅ Success", f"Image saved:\n{file_path}")
                     save_window.destroy()
                 except Exception as e:
-                    messagebox.showerror("Error", f"Could not save image: {e}")
+                    messagebox.showerror("❌ Error", f"Could not save image:\n{str(e)}")
         
-        button_frame = Frame(save_window)
-        button_frame.pack(fill='x', padx=10, pady=20)
+        # Buttons
+        button_frame = Frame(save_window, bg=Theme.PANEL)
+        button_frame.pack(fill='x', padx=20, pady=20)
         
-        ModelButton(button_frame, "Save", save_with_format).grid_layout(row=0, column=0, padx=5)
-        ModelButton(button_frame, "Cancel", save_window.destroy).grid_layout(row=0, column=1, padx=5)
+        ModelButton(button_frame, "💾 Save", save_with_format).grid_layout(row=0, column=0, padx=5, sticky='e')
+        ModelButton(button_frame, "❌ Cancel", save_window.destroy).grid_layout(row=0, column=1, padx=5, sticky='w')
 
 
 if __name__ == '__main__':

@@ -137,19 +137,26 @@ class TestModels:
         print("-"*70)
         
         try:
+            # Tester avec palette
+            palette = self.generate_palette('cool', 5)
             model = SpectralClusteringModel(n_clusters=5)
             
-            # Test segment_image
-            segmented = model.segment_image(self.image)
+            # Test segment_image avec palette
+            segmented = model.segment_image(self.image, shared_palette=palette)
             assert isinstance(segmented, Image.Image), "Le résultat doit être une Image PIL"
             assert segmented.size == self.image.size, "La taille doit être identique"
             
-            # Vérifier qu'il y a au moins 1 cluster
+            # Vérifier qu'il y a au least 1 cluster
             seg_array = np.array(segmented)
             unique_colors = len(np.unique(seg_array.reshape(-1, 3), axis=0))
             assert unique_colors >= 1, "Doit avoir au moins 1 cluster"
             
+            # Tester sans palette
+            segmented_default = model.segment_image(self.image)
+            assert isinstance(segmented_default, Image.Image), "Le résultat doit être une Image PIL"
+            
             print(f"[OK] Spectral: {unique_colors} clusters trouvés")
+            print(f"[OK] Spectral fonctionne avec palette et sans palette")
             self.passed += 1
             return True
         except Exception as e:
@@ -195,9 +202,12 @@ class TestModels:
                 ("Spectral", SpectralClusteringModel(n_clusters=10))
             ]
             
+            # Utiliser la même palette pour tous
+            palette = self.generate_palette('hot', 10)
+            
             results = {}
             for name, model in models:
-                seg = model.segment_image(self.image)
+                seg = model.segment_image(self.image, shared_palette=palette)
                 seg_array = np.array(seg)
                 unique_colors = len(np.unique(seg_array.reshape(-1, 3), axis=0))
                 results[name] = unique_colors
