@@ -102,6 +102,12 @@ class ImageDisplayCanvas:
 
 class ModelButton:
     def __init__(self, parent_frame: Frame, label: str, model_name: str = None, on_click=None):
+        # Handle the case where on_click is passed as a keyword argument
+        if model_name is not None and callable(model_name) and on_click is None:
+            # on_click was passed as positional argument where model_name should be
+            on_click = model_name
+            model_name = None
+        
         self.model_name = model_name
         self.button_color = Theme.get_model_color(model_name) if model_name else Theme.PANEL
         

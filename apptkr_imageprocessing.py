@@ -183,10 +183,10 @@ class ImageSegmentationApplication:
         operations_frame = Frame(left_panel, bg=Theme.PANEL)
         operations_frame.pack(fill='x', padx=10, pady=10)
         
-        open_btn = ModelButton(operations_frame, "Open Image", self.open_image_file)
+        open_btn = ModelButton(operations_frame, "Open Image", on_click=self.open_image_file)
         open_btn.grid_layout(row=0, column=0, padx=5, pady=5)
         
-        save_btn = ModelButton(operations_frame, "Save Result", self.save_result_advanced)
+        save_btn = ModelButton(operations_frame, "Save Result", on_click=self.save_result_advanced)
         save_btn.grid_layout(row=1, column=0, padx=5, pady=5)
         
         # Right panel - Canvas with comparison
