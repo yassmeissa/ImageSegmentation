@@ -189,6 +189,9 @@ class ImageSegmentationApplication:
         save_btn = ModelButton(operations_frame, "Save Result", on_click=self.save_result_advanced)
         save_btn.grid_layout(row=1, column=0, padx=5, pady=5)
         
+        export_3d_btn = ModelButton(operations_frame, "Export 3D", on_click=self.export_3d_clusters)
+        export_3d_btn.grid_layout(row=2, column=0, padx=5, pady=5)
+        
         # Right panel - Canvas with comparison
         right_panel = Frame(content_frame, bg=Theme.BG)
         right_panel.pack(side='right', fill='both', expand=True)
@@ -547,22 +550,26 @@ class ImageSegmentationApplication:
             logger.error(f"3D visualization error: {e}", exc_info=True)
     
     def export_3d_clusters(self):
-        """Exporter la visualisation 3D en PNG haute résolution"""
+        """Exporter la visualisation 3D en PNG haute résolution pour le modèle sélectionné"""
         if self.image_processor.current_image is None:
             messagebox.showwarning("Warning", "No segmented image available.")
+            return
+        
+        if not self.active_model_name:
+            messagebox.showwarning("Warning", "No model selected. Process an image first.")
             return
         
         file_path = filedialog.asksaveasfilename(
             defaultextension=".png",
             filetypes=(("PNG images", "*.png"), ("All files", "*.*")),
-            initialfile="clusters_3d.png"
+            initialfile=f"clusters_3d_{self.active_model_name}.png"
         )
         
         if file_path:
             try:
-                # Get pixel data
-                current = self.image_processor.current_image
-                pixels = current.getdata()
+                # Get pixel data from original image
+                original = self.image_processor.original_image
+                pixels = original.getdata()
                 pixel_list = list(pixels)
                 
                 rgb_data = []
@@ -573,15 +580,77 @@ class ImageSegmentationApplication:
                 import numpy as np
                 rgb_array = np.array(rgb_data)
                 
-                from sklearn.cluster import KMeans as SKKMeans
-                kmeans = SKKMeans(n_clusters=10, random_state=42, n_init=10)
-                labels = kmeans.fit_predict(rgb_array)
+                # Get labels from the active model
+                model = self.clustering_models[self.active_model_name]
                 
-                viz = Cluster3DVisualization()
-                viz.save_clusters_3d(rgb_array, labels, kmeans.cluster_centers_, file_path)
-                messagebox.showinfo("Success", f"3D visualization saved to {file_path}")
+                if self.active_model_name == 'kmeans':
+                    labels = model.kmeans.labels_
+                    centers = model.kmeans.cluster_centers_
+                    n_clusters = model.n_clusters
+                elif self.active_model_name == 'gmm':
+                    labels = model.gmm.predict(rgb_array)
+                    centers = model.gmm.means_
+                    n_clusters = model.n_components
+                elif self.active_model_name == 'spectral':
+                    labels = model.spectral.labels_
+                    n_clusters = model.n_clusters
+                    # For spectral clustering, compute centroids manually
+                    centers = []
+                    for i in range(n_clusters):
+                        cluster_points = rgb_array[labels == i]
+                        if len(cluster_points) > 0:
+                            centers.append(cluster_points.mean(axis=0))
+                    centers = np.array(centers)
+                elif self.active_model_name == 'meanshift':
+                    labels = model.meanshift.labels_
+                    centers = model.meanshift.cluster_centers_
+                    n_clusters = len(np.unique(labels))
+                else:
+                    messagebox.showerror("Error", f"Unknown model: {self.active_model_name}")
+                    return
+                
+                # Create 3D plot with matplotlib
+                import matplotlib.pyplot as plt
+                from mpl_toolkits.mplot3d import Axes3D
+                
+                fig = plt.figure(figsize=(12, 9), dpi=150)
+                ax = fig.add_subplot(111, projection='3d')
+                
+                # Plot each cluster with different colors
+                colors = plt.cm.viridis(np.linspace(0, 1, max(n_clusters, 2)))
+                
+                for i in range(n_clusters):
+                    cluster_points = rgb_array[labels == i]
+                    if len(cluster_points) > 0:
+                        ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2],
+                                 c=[colors[i]], label=f'Cluster {i}', s=10, alpha=0.6)
+                
+                # Plot cluster centers
+                if centers is not None and len(centers) > 0:
+                    ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2],
+                              c='red', marker='*', s=500, edgecolors='black', linewidths=2,
+                              label='Centroids', zorder=10)
+                
+                ax.set_xlabel('Red', fontsize=12, fontweight='bold')
+                ax.set_ylabel('Green', fontsize=12, fontweight='bold')
+                ax.set_zlabel('Blue', fontsize=12, fontweight='bold')
+                ax.set_title('3D RGB Cluster Visualization\n' + 
+                           f'Model: {self.active_model_name.upper()} | Clusters: {n_clusters}',
+                           fontsize=14, fontweight='bold')
+                
+                ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=9)
+                ax.grid(True, alpha=0.3)
+                
+                # Set viewing angle
+                ax.view_init(elev=20, azim=45)
+                
+                plt.tight_layout()
+                plt.savefig(file_path, dpi=150, bbox_inches='tight')
+                plt.close()
+                
+                messagebox.showinfo("Success", f"3D cluster plot saved to:\n{file_path}")
             except Exception as e:
-                messagebox.showerror("Error", f"Could not export 3D visualization: {e}")
+                messagebox.showerror("Error", f"Could not export 3D visualization:\n{str(e)}")
                 logger.error(f"3D export error: {e}", exc_info=True)
     
     def manage_palettes(self):
