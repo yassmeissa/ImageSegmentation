@@ -6,14 +6,13 @@ import sys
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.cm as cm
-from matplotlib.colors import rgb_to_hsv, hsv_to_rgb
 
 from tkinter import Tk, Menu, Frame, Label, filedialog, messagebox, Canvas, Checkbutton, IntVar, Toplevel, Listbox, Scrollbar, Radiobutton, StringVar, Text, SINGLE, END, Y, LEFT, RIGHT, BOTH, DISABLED
 from PIL import Image, ImageTk
 import threading
 import numpy as np
 from image_processor import ImageProcessor
-from ui_components import ImageDisplayCanvas, ModelButton, ParameterSlider, ComparisonCanvas
+from ui_components import ModelButton, ComparisonCanvas
 from models.kmeans_model import KMeansClusteringModel
 from models.gmm_model import GMMClusteringModel
 from models.meanshift_model import MeanShiftClusteringModel
@@ -21,7 +20,6 @@ from models.spectral_model import SpectralClusteringModel
 from config import AppConfig
 from theme import Theme
 from utils.logger import AppLogger
-from dialogs.parameters_dialog import ParametersDialog
 from dialogs.config_dialog import ConfigurationDialog
 from utils.color_palette import ColorPalette
 from utils.cluster_3d import Cluster3DVisualization
