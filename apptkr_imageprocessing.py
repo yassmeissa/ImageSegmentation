@@ -155,6 +155,12 @@ class ImageSegmentationApplication:
         self.spectral_button = ModelButton(buttons_frame, "Spectral", 'spectral', lambda: self.apply_model('spectral'))
         self.spectral_button.grid_layout(row=3, column=0, padx=5, pady=5)
         
+        # Disable model buttons initially (until image is loaded)
+        self.kmeans_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        self.gmm_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        self.meanshift_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        self.spectral_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        
         # Separator
         sep1 = Frame(left_panel, bg=Theme.MUTED, height=1)
         sep1.pack(fill='x', padx=10, pady=10)
@@ -195,7 +201,7 @@ class ImageSegmentationApplication:
         
         self.model_info_label = Label(
             info_frame,
-            text="Select a clustering model to begin",
+            text="Select an image to begin",
             font=("Segoe UI", 11, "bold"),
             bg=Theme.PANEL,
             fg=Theme.TEXT
@@ -253,10 +259,22 @@ class ImageSegmentationApplication:
             try:
                 self.image_processor.load_from_file(file_path)
 
-                # ✅ AJOUT IMPORTANT
+                # ✅ Reset segmentation state
                 self.image_processor.current_image = None
                 self.comparison_canvas.has_segmentation = False
 
+                # ✅ Enable model buttons now that image is loaded
+                self.kmeans_button.button.config(state='normal', fg='#000000')
+                self.gmm_button.button.config(state='normal', fg='#000000')
+                self.meanshift_button.button.config(state='normal', fg='#000000')
+                self.spectral_button.button.config(state='normal', fg='#000000')
+                
+                # Update info label
+                self.model_info_label.config(
+                    text="Image loaded! Select a clustering model",
+                    fg=Theme.ACCENT
+                )
+                
                 self.refresh_display()
             except Exception as e:
                 print(f"Error loading image: {e}")
@@ -278,6 +296,9 @@ class ImageSegmentationApplication:
         
         if not result:
             return  # User cancelled
+        
+        # Disable model buttons during processing
+        self._disable_model_buttons()
         
         # Apply configuration
         logger.info(f"[UI] Applying model: {model_name}")
@@ -400,8 +421,11 @@ class ImageSegmentationApplication:
                     fg=Theme.get_model_color(self.active_model_name)
                 )
             
-            self.refresh_display()
+            # Re-enable model buttons
+            self._enable_model_buttons()
             self.update_button_states()
+            
+            self.refresh_display()
             self.processing_thread = None
         
         self.window.after(100, self.check_processing)
@@ -411,6 +435,20 @@ class ImageSegmentationApplication:
         self.gmm_button.set_active(self.active_model_name == 'gmm')
         self.meanshift_button.set_active(self.active_model_name == 'meanshift')
         self.spectral_button.set_active(self.active_model_name == 'spectral')
+    
+    def _disable_model_buttons(self):
+        """Disable model buttons during processing"""
+        self.kmeans_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        self.gmm_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        self.meanshift_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+        self.spectral_button.button.config(state=DISABLED, fg=Theme.DISABLED)
+    
+    def _enable_model_buttons(self):
+        """Enable model buttons after processing"""
+        self.kmeans_button.button.config(state='normal', fg='#000000')
+        self.gmm_button.button.config(state='normal', fg='#000000')
+        self.meanshift_button.button.config(state='normal', fg='#000000')
+        self.spectral_button.button.config(state='normal', fg='#000000')
     
     def _generate_palette(self, palette_name: str, n_colors: int):
         """Generate a color palette using Matplotlib colormaps"""
