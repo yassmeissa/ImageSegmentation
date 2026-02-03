@@ -11312,3 +11312,207 @@ AttributeError: 'SpectralClusteringModel' object has no attribute 'gamma'
 2026-02-03 18:33:45 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
 2026-02-03 18:33:45 - ImageSegmentation - INFO - [Thread] Processing completed successfully
 2026-02-03 18:33:45 - ImageSegmentation - INFO - [Thread] Processing finished
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Starting ImageSegmentationApplication
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Initializing K-Means (k=10)
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Initializing GMM (k=10)
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Initializing MeanShift
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Initializing MeanShift with bandwidth=25
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Initializing Spectral (k=10)
+2026-02-03 18:44:40 - ImageSegmentation - INFO - Initializing Spectral Clustering with n_clusters=10
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [UI] Applying model: kmeans
+2026-02-03 18:44:50 - ImageSegmentation - INFO - K-Means: clusters=10, n_init=30, max_iter=500
+2026-02-03 18:44:50 - ImageSegmentation - DEBUG - [UI] Starting background thread for kmeans
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [Thread] Processing started for K-Means (k=10)
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [UI] Background thread started for kmeans
+2026-02-03 18:44:50 - ImageSegmentation - DEBUG - [Thread] Getting original image...
+2026-02-03 18:44:50 - ImageSegmentation - DEBUG - [Thread] Image obtained: (440, 575)
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [Thread] Calling segment_image() with palette: viridis...
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() started
+2026-02-03 18:44:50 - ImageSegmentation - DEBUG - [K-Means (k=10)] Image size: (440, 575), mode: RGB
+2026-02-03 18:44:50 - ImageSegmentation - DEBUG - [K-Means (k=10)] Pixel array shape: (575, 440, 3)
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [K-Means (k=10)] Flattening pixels...
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [K-Means (k=10)] Flattened shape: (253000, 3)
+2026-02-03 18:44:50 - ImageSegmentation - INFO - [K-Means (k=10)] Calling fit()...
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [K-Means (k=10)] Calling predict()...
+2026-02-03 18:44:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Predictions done. Labels shape: (253000,)
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [K-Means (k=10)] Getting cluster centers...
+2026-02-03 18:44:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Cluster centers shape: (10, 3)
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [K-Means (k=10)] Using vibrant color palette...
+2026-02-03 18:44:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Using palette with 10 colors
+2026-02-03 18:44:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Segmented array shape: (575, 440, 3)
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [K-Means (k=10)] Creating image from array...
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() completed successfully
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [Thread] segment_image() completed
+2026-02-03 18:44:53 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [Thread] Processing completed successfully
+2026-02-03 18:44:53 - ImageSegmentation - INFO - [Thread] Processing finished
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Starting ImageSegmentationApplication
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Initializing K-Means (k=10)
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Initializing GMM (k=10)
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Initializing MeanShift
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Initializing MeanShift with bandwidth=25
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Initializing Spectral (k=10)
+2026-02-03 18:46:17 - ImageSegmentation - INFO - Initializing Spectral Clustering with n_clusters=10
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [UI] Applying model: kmeans
+2026-02-03 18:46:27 - ImageSegmentation - INFO - K-Means: clusters=10, n_init=30, max_iter=500
+2026-02-03 18:46:27 - ImageSegmentation - DEBUG - [UI] Starting background thread for kmeans
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [Thread] Processing started for K-Means (k=10)
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [UI] Background thread started for kmeans
+2026-02-03 18:46:27 - ImageSegmentation - DEBUG - [Thread] Getting original image...
+2026-02-03 18:46:27 - ImageSegmentation - DEBUG - [Thread] Image obtained: (600, 333)
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [Thread] Calling segment_image() with palette: viridis...
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() started
+2026-02-03 18:46:27 - ImageSegmentation - DEBUG - [K-Means (k=10)] Image size: (600, 333), mode: RGB
+2026-02-03 18:46:27 - ImageSegmentation - DEBUG - [K-Means (k=10)] Pixel array shape: (333, 600, 3)
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [K-Means (k=10)] Flattening pixels...
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [K-Means (k=10)] Flattened shape: (199800, 3)
+2026-02-03 18:46:27 - ImageSegmentation - INFO - [K-Means (k=10)] Calling fit()...
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [K-Means (k=10)] Calling predict()...
+2026-02-03 18:46:29 - ImageSegmentation - DEBUG - [K-Means (k=10)] Predictions done. Labels shape: (199800,)
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [K-Means (k=10)] Getting cluster centers...
+2026-02-03 18:46:29 - ImageSegmentation - DEBUG - [K-Means (k=10)] Cluster centers shape: (10, 3)
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [K-Means (k=10)] Using vibrant color palette...
+2026-02-03 18:46:29 - ImageSegmentation - DEBUG - [K-Means (k=10)] Using palette with 10 colors
+2026-02-03 18:46:29 - ImageSegmentation - DEBUG - [K-Means (k=10)] Segmented array shape: (333, 600, 3)
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [K-Means (k=10)] Creating image from array...
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() completed successfully
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [Thread] segment_image() completed
+2026-02-03 18:46:29 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [Thread] Processing completed successfully
+2026-02-03 18:46:29 - ImageSegmentation - INFO - [Thread] Processing finished
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Starting ImageSegmentationApplication
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Initializing K-Means (k=10)
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Initializing GMM (k=10)
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Initializing MeanShift
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Initializing MeanShift with bandwidth=25
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Initializing Spectral (k=10)
+2026-02-03 18:47:42 - ImageSegmentation - INFO - Initializing Spectral Clustering with n_clusters=10
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [UI] Applying model: kmeans
+2026-02-03 18:47:54 - ImageSegmentation - INFO - K-Means: clusters=10, n_init=30, max_iter=500
+2026-02-03 18:47:54 - ImageSegmentation - DEBUG - [UI] Starting background thread for kmeans
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [Thread] Processing started for K-Means (k=10)
+2026-02-03 18:47:54 - ImageSegmentation - DEBUG - [Thread] Getting original image...
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [UI] Background thread started for kmeans
+2026-02-03 18:47:54 - ImageSegmentation - DEBUG - [Thread] Image obtained: (440, 575)
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [Thread] Calling segment_image() with palette: viridis...
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() started
+2026-02-03 18:47:54 - ImageSegmentation - DEBUG - [K-Means (k=10)] Image size: (440, 575), mode: RGB
+2026-02-03 18:47:54 - ImageSegmentation - DEBUG - [K-Means (k=10)] Pixel array shape: (575, 440, 3)
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [K-Means (k=10)] Flattening pixels...
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [K-Means (k=10)] Flattened shape: (253000, 3)
+2026-02-03 18:47:54 - ImageSegmentation - INFO - [K-Means (k=10)] Calling fit()...
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [K-Means (k=10)] Calling predict()...
+2026-02-03 18:47:57 - ImageSegmentation - DEBUG - [K-Means (k=10)] Predictions done. Labels shape: (253000,)
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [K-Means (k=10)] Getting cluster centers...
+2026-02-03 18:47:57 - ImageSegmentation - DEBUG - [K-Means (k=10)] Cluster centers shape: (10, 3)
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [K-Means (k=10)] Using vibrant color palette...
+2026-02-03 18:47:57 - ImageSegmentation - DEBUG - [K-Means (k=10)] Using palette with 10 colors
+2026-02-03 18:47:57 - ImageSegmentation - DEBUG - [K-Means (k=10)] Segmented array shape: (575, 440, 3)
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [K-Means (k=10)] Creating image from array...
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() completed successfully
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [Thread] segment_image() completed
+2026-02-03 18:47:57 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [Thread] Processing completed successfully
+2026-02-03 18:47:57 - ImageSegmentation - INFO - [Thread] Processing finished
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Starting ImageSegmentationApplication
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Initializing K-Means (k=10)
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Initializing GMM (k=10)
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Initializing MeanShift
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Initializing MeanShift with bandwidth=25
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Initializing Spectral (k=10)
+2026-02-03 18:48:42 - ImageSegmentation - INFO - Initializing Spectral Clustering with n_clusters=10
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [UI] Applying model: kmeans
+2026-02-03 18:48:50 - ImageSegmentation - INFO - K-Means: clusters=10, n_init=30, max_iter=500
+2026-02-03 18:48:50 - ImageSegmentation - DEBUG - [UI] Starting background thread for kmeans
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [Thread] Processing started for K-Means (k=10)
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [UI] Background thread started for kmeans
+2026-02-03 18:48:50 - ImageSegmentation - DEBUG - [Thread] Getting original image...
+2026-02-03 18:48:50 - ImageSegmentation - DEBUG - [Thread] Image obtained: (600, 333)
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [Thread] Calling segment_image() with palette: viridis...
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() started
+2026-02-03 18:48:50 - ImageSegmentation - DEBUG - [K-Means (k=10)] Image size: (600, 333), mode: RGB
+2026-02-03 18:48:50 - ImageSegmentation - DEBUG - [K-Means (k=10)] Pixel array shape: (333, 600, 3)
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [K-Means (k=10)] Flattening pixels...
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [K-Means (k=10)] Flattened shape: (199800, 3)
+2026-02-03 18:48:50 - ImageSegmentation - INFO - [K-Means (k=10)] Calling fit()...
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [K-Means (k=10)] Calling predict()...
+2026-02-03 18:48:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Predictions done. Labels shape: (199800,)
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [K-Means (k=10)] Getting cluster centers...
+2026-02-03 18:48:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Cluster centers shape: (10, 3)
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [K-Means (k=10)] Using vibrant color palette...
+2026-02-03 18:48:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Using palette with 10 colors
+2026-02-03 18:48:53 - ImageSegmentation - DEBUG - [K-Means (k=10)] Segmented array shape: (333, 600, 3)
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [K-Means (k=10)] Creating image from array...
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() completed successfully
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [Thread] segment_image() completed
+2026-02-03 18:48:53 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [Thread] Processing completed successfully
+2026-02-03 18:48:53 - ImageSegmentation - INFO - [Thread] Processing finished
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Starting ImageSegmentationApplication
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Initializing K-Means (k=10)
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Initializing GMM (k=10)
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Initializing MeanShift
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Initializing MeanShift with bandwidth=25
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Initializing Spectral (k=10)
+2026-02-03 18:51:34 - ImageSegmentation - INFO - Initializing Spectral Clustering with n_clusters=10
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [UI] Applying model: kmeans
+2026-02-03 18:51:42 - ImageSegmentation - INFO - K-Means: clusters=10, n_init=30, max_iter=500
+2026-02-03 18:51:42 - ImageSegmentation - DEBUG - [UI] Starting background thread for kmeans
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [Thread] Processing started for K-Means (k=10)
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [UI] Background thread started for kmeans
+2026-02-03 18:51:42 - ImageSegmentation - DEBUG - [Thread] Getting original image...
+2026-02-03 18:51:42 - ImageSegmentation - DEBUG - [Thread] Image obtained: (600, 333)
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [Thread] Calling segment_image() with palette: viridis...
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() started
+2026-02-03 18:51:42 - ImageSegmentation - DEBUG - [K-Means (k=10)] Image size: (600, 333), mode: RGB
+2026-02-03 18:51:42 - ImageSegmentation - DEBUG - [K-Means (k=10)] Pixel array shape: (333, 600, 3)
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [K-Means (k=10)] Flattening pixels...
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [K-Means (k=10)] Flattened shape: (199800, 3)
+2026-02-03 18:51:42 - ImageSegmentation - INFO - [K-Means (k=10)] Calling fit()...
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [K-Means (k=10)] Calling predict()...
+2026-02-03 18:51:45 - ImageSegmentation - DEBUG - [K-Means (k=10)] Predictions done. Labels shape: (199800,)
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [K-Means (k=10)] Getting cluster centers...
+2026-02-03 18:51:45 - ImageSegmentation - DEBUG - [K-Means (k=10)] Cluster centers shape: (10, 3)
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [K-Means (k=10)] Using vibrant color palette...
+2026-02-03 18:51:45 - ImageSegmentation - DEBUG - [K-Means (k=10)] Using palette with 10 colors
+2026-02-03 18:51:45 - ImageSegmentation - DEBUG - [K-Means (k=10)] Segmented array shape: (333, 600, 3)
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [K-Means (k=10)] Creating image from array...
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [K-Means (k=10)] segment_image() completed successfully
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [Thread] segment_image() completed
+2026-02-03 18:51:45 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [Thread] Processing completed successfully
+2026-02-03 18:51:45 - ImageSegmentation - INFO - [Thread] Processing finished
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Starting ImageSegmentationApplication
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Initializing K-Means (k=10)
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Initializing GMM (k=10)
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Initializing MeanShift
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Initializing MeanShift with bandwidth=25
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Initializing Spectral (k=10)
+2026-02-03 18:52:59 - ImageSegmentation - INFO - Initializing Spectral Clustering with n_clusters=10
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [UI] Applying model: gmm
+2026-02-03 18:53:08 - ImageSegmentation - INFO - GMM: components=10, max_iter=500, cov_type=diag
+2026-02-03 18:53:08 - ImageSegmentation - DEBUG - [UI] Starting background thread for gmm
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [Thread] Processing started for GMM (k=10)
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [UI] Background thread started for gmm
+2026-02-03 18:53:08 - ImageSegmentation - DEBUG - [Thread] Getting original image...
+2026-02-03 18:53:08 - ImageSegmentation - DEBUG - [Thread] Image obtained: (600, 333)
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [Thread] Calling segment_image() with palette: viridis...
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [GMM (k=10)] segment_image() started
+2026-02-03 18:53:08 - ImageSegmentation - DEBUG - [GMM (k=10)] Image size: (600, 333), mode: RGB
+2026-02-03 18:53:08 - ImageSegmentation - DEBUG - [GMM (k=10)] Pixel array shape: (333, 600, 3)
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [GMM (k=10)] Flattening pixels...
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [GMM (k=10)] Flattened shape: (199800, 3)
+2026-02-03 18:53:08 - ImageSegmentation - INFO - [GMM (k=10)] Calling fit()...
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [GMM (k=10)] Calling predict()...
+2026-02-03 18:53:10 - ImageSegmentation - DEBUG - [GMM (k=10)] Predictions done. Labels shape: (199800,)
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [GMM (k=10)] Getting cluster centers...
+2026-02-03 18:53:10 - ImageSegmentation - DEBUG - [GMM (k=10)] Cluster centers shape: (10, 3)
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [GMM (k=10)] Using vibrant color palette...
+2026-02-03 18:53:10 - ImageSegmentation - DEBUG - [GMM (k=10)] Using palette with 10 colors
+2026-02-03 18:53:10 - ImageSegmentation - DEBUG - [GMM (k=10)] Segmented array shape: (333, 600, 3)
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [GMM (k=10)] Creating image from array...
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [GMM (k=10)] segment_image() completed successfully
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [Thread] segment_image() completed
+2026-02-03 18:53:10 - ImageSegmentation - DEBUG - [Thread] Storing segmented image...
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [Thread] Processing completed successfully
+2026-02-03 18:53:10 - ImageSegmentation - INFO - [Thread] Processing finished

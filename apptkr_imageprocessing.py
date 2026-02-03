@@ -559,99 +559,151 @@ class ImageSegmentationApplication:
             messagebox.showwarning("Warning", "No model selected. Process an image first.")
             return
         
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".png",
-            filetypes=(("PNG images", "*.png"), ("All files", "*.*")),
-            initialfile=f"clusters_3d_{self.active_model_name}.png"
-        )
-        
-        if file_path:
-            try:
-                # Get pixel data from original image
-                original = self.image_processor.original_image
-                pixels = original.getdata()
-                pixel_list = list(pixels)
-                
-                rgb_data = []
-                for pixel in pixel_list:
-                    if isinstance(pixel, tuple):
-                        rgb_data.append(pixel[:3])
-                
-                import numpy as np
-                rgb_array = np.array(rgb_data)
-                
-                # Get labels from the active model
-                model = self.clustering_models[self.active_model_name]
-                
-                if self.active_model_name == 'kmeans':
-                    labels = model.kmeans.labels_
-                    centers = model.kmeans.cluster_centers_
-                    n_clusters = model.n_clusters
-                elif self.active_model_name == 'gmm':
-                    labels = model.gmm.predict(rgb_array)
-                    centers = model.gmm.means_
-                    n_clusters = model.n_components
-                elif self.active_model_name == 'spectral':
-                    labels = model.spectral.labels_
-                    n_clusters = model.n_clusters
-                    # For spectral clustering, compute centroids manually
-                    centers = []
-                    for i in range(n_clusters):
-                        cluster_points = rgb_array[labels == i]
-                        if len(cluster_points) > 0:
-                            centers.append(cluster_points.mean(axis=0))
-                    centers = np.array(centers)
-                elif self.active_model_name == 'meanshift':
-                    labels = model.meanshift.labels_
-                    centers = model.meanshift.cluster_centers_
-                    n_clusters = len(np.unique(labels))
-                else:
-                    messagebox.showerror("Error", f"Unknown model: {self.active_model_name}")
-                    return
-                
-                # Create 3D plot with matplotlib
-                import matplotlib.pyplot as plt
-                from mpl_toolkits.mplot3d import Axes3D
-                
-                fig = plt.figure(figsize=(12, 9), dpi=150)
-                ax = fig.add_subplot(111, projection='3d')
-                
-                # Plot each cluster with different colors
-                colors = plt.cm.viridis(np.linspace(0, 1, max(n_clusters, 2)))
-                
+        try:
+            # Get pixel data from original image
+            original = self.image_processor.original_image
+            pixels = original.getdata()
+            pixel_list = list(pixels)
+            
+            rgb_data = []
+            for pixel in pixel_list:
+                if isinstance(pixel, tuple):
+                    rgb_data.append(pixel[:3])
+            
+            import numpy as np
+            rgb_array = np.array(rgb_data)
+            
+            # Get labels from the active model
+            model = self.clustering_models[self.active_model_name]
+            
+            if self.active_model_name == 'kmeans':
+                labels = model.kmeans.labels_
+                centers = model.kmeans.cluster_centers_
+                n_clusters = model.n_clusters
+            elif self.active_model_name == 'gmm':
+                labels = model.gmm.predict(rgb_array)
+                centers = model.gmm.means_
+                n_clusters = model.n_components
+            elif self.active_model_name == 'spectral':
+                labels = model.spectral.labels_
+                n_clusters = model.n_clusters
+                # For spectral clustering, compute centroids manually
+                centers = []
                 for i in range(n_clusters):
                     cluster_points = rgb_array[labels == i]
                     if len(cluster_points) > 0:
-                        ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2],
-                                 c=[colors[i]], label=f'Cluster {i}', s=10, alpha=0.6)
-                
-                # Plot cluster centers
-                if centers is not None and len(centers) > 0:
-                    ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2],
-                              c='red', marker='*', s=500, edgecolors='black', linewidths=2,
-                              label='Centroids', zorder=10)
-                
-                ax.set_xlabel('Red', fontsize=12, fontweight='bold')
-                ax.set_ylabel('Green', fontsize=12, fontweight='bold')
-                ax.set_zlabel('Blue', fontsize=12, fontweight='bold')
-                ax.set_title('3D RGB Cluster Visualization\n' + 
-                           f'Model: {self.active_model_name.upper()} | Clusters: {n_clusters}',
-                           fontsize=14, fontweight='bold')
-                
-                ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=9)
-                ax.grid(True, alpha=0.3)
-                
-                # Set viewing angle
-                ax.view_init(elev=20, azim=45)
-                
-                plt.tight_layout()
-                plt.savefig(file_path, dpi=150, bbox_inches='tight')
-                plt.close()
-                
-                messagebox.showinfo("Success", f"3D cluster plot saved to:\n{file_path}")
-            except Exception as e:
-                messagebox.showerror("Error", f"Could not export 3D visualization:\n{str(e)}")
-                logger.error(f"3D export error: {e}", exc_info=True)
+                        centers.append(cluster_points.mean(axis=0))
+                centers = np.array(centers)
+            elif self.active_model_name == 'meanshift':
+                labels = model.meanshift.labels_
+                centers = model.meanshift.cluster_centers_
+                n_clusters = len(np.unique(labels))
+            else:
+                messagebox.showerror("Error", f"Unknown model: {self.active_model_name}")
+                return
+            
+            # Create 3D plot with matplotlib
+            import matplotlib.pyplot as plt
+            from mpl_toolkits.mplot3d import Axes3D
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+            
+            fig = plt.figure(figsize=(12, 9), dpi=100)
+            ax = fig.add_subplot(111, projection='3d')
+            
+            # Plot each cluster with different colors
+            colors = plt.cm.viridis(np.linspace(0, 1, max(n_clusters, 2)))
+            
+            for i in range(n_clusters):
+                cluster_points = rgb_array[labels == i]
+                if len(cluster_points) > 0:
+                    ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2],
+                             c=[colors[i]], label=f'Cluster {i}', s=10, alpha=0.6)
+            
+            # Plot cluster centers
+            if centers is not None and len(centers) > 0:
+                ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2],
+                          c='red', marker='*', s=500, edgecolors='black', linewidths=2,
+                          label='Centroids', zorder=10)
+            
+            ax.set_xlabel('Red', fontsize=12, fontweight='bold')
+            ax.set_ylabel('Green', fontsize=12, fontweight='bold')
+            ax.set_zlabel('Blue', fontsize=12, fontweight='bold')
+            ax.set_title('3D RGB Cluster Visualization\n' + 
+                       f'Model: {self.active_model_name.upper()} | Clusters: {n_clusters}',
+                       fontsize=14, fontweight='bold')
+            
+            ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=9)
+            ax.grid(True, alpha=0.3)
+            
+            # Set viewing angle
+            ax.view_init(elev=20, azim=45)
+            
+            plt.tight_layout()
+            
+            # Create a new window to display the plot
+            plot_window = Toplevel(self.window)
+            plot_window.title(f"3D Cluster Visualization - {self.active_model_name.upper()}")
+            plot_window.geometry("1000x800")
+            
+            # Add buttons at the top
+            button_frame = Frame(plot_window, bg=Theme.PANEL, height=50)
+            button_frame.pack(fill='x', padx=10, pady=10)
+            button_frame.pack_propagate(False)
+            
+            # Embed matplotlib figure in Tkinter window
+            canvas = FigureCanvasTkAgg(fig, master=plot_window)
+            canvas.draw()
+            canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=(0, 10))
+            
+            def save_plot():
+                file_path = filedialog.asksaveasfilename(
+                    parent=plot_window,
+                    defaultextension=".png",
+                    filetypes=(("PNG images", "*.png"), ("All files", "*.*")),
+                    initialfile=f"clusters_3d_{self.active_model_name}.png"
+                )
+                if file_path:
+                    fig.savefig(file_path, dpi=150, bbox_inches='tight')
+                    messagebox.showinfo("Success", f"3D cluster plot saved to:\n{file_path}")
+            
+            from tkinter import Button
+            save_btn = Button(
+                button_frame,
+                text="💾 Save Plot",
+                command=save_plot,
+                font=("Segoe UI", 11, "bold"),
+                bg="#4CAF50",
+                fg="#0056B3",
+                activebackground="#45a049",
+                activeforeground="#FFD700",
+                relief="raised",
+                padx=20,
+                pady=10,
+                cursor="hand2",
+                borderwidth=2
+            )
+            save_btn.pack(side='left', padx=5)
+            
+            close_btn = Button(
+                button_frame,
+                text="❌ Close",
+                command=plot_window.destroy,
+                font=("Segoe UI", 11, "bold"),
+                bg="#FF6B6B",
+                fg="#000000",
+                activebackground="#E63946",
+                activeforeground="#FFD700",
+                relief="raised",
+                padx=20,
+                pady=10,
+                cursor="hand2",
+                borderwidth=2
+            )
+            close_btn.pack(side='left', padx=5)
+            
+        except Exception as e:
+            messagebox.showerror("Error", f"Could not export 3D visualization:\n{str(e)}")
+            logger.error(f"3D export error: {e}", exc_info=True)
     
     def manage_palettes(self):
         """Afficher les palettes de couleurs disponibles"""
@@ -1003,9 +1055,9 @@ Variance Explained by Component:
             command=save_with_format,
             font=("Segoe UI", 11, "bold"),
             bg="#4CAF50",
-            fg="#FFFFFF",
+            fg="#0056B3",
             activebackground="#45a049",
-            activeforeground="#FFFFFF",
+            activeforeground="#FFD700",
             relief="raised",
             padx=20,
             pady=10,
@@ -1018,11 +1070,11 @@ Variance Explained by Component:
             button_frame,
             text="❌ Cancel",
             command=save_window.destroy,
-            font=("Segoe UI", 11),
-            bg="#9E9E9E",
-            fg="#FFFFFF",
-            activebackground="#757575",
-            activeforeground="#FFFFFF",
+            font=("Segoe UI", 11, "bold"),
+            bg="#FF6B6B",
+            fg="#000000",
+            activebackground="#E63946",
+            activeforeground="#FFD700",
             relief="raised",
             padx=20,
             pady=10,
