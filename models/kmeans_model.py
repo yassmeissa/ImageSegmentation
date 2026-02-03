@@ -6,7 +6,7 @@ import gc
 
 class KMeansClusteringModel(BaseClusteringModel):
     def __init__(self, n_clusters: int = 3):
-        super().__init__(f"K-Means (k={n_clusters})")
+        super().__init__(f"K-Means (k={n_clusters})", use_vibrant_colors=True)
         self.n_clusters = n_clusters
         # Ultra-optimized K-Means: aggressive convergence for sharp results
         self.kmeans = KMeans(

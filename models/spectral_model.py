@@ -17,19 +17,19 @@ class SpectralClusteringModel(BaseClusteringModel):
     pour identifier les clusters.
     """
     
-    def __init__(self, n_clusters: int = 3, affinity: str = 'rbf'):
+    def __init__(self, n_clusters: int = 3, affinity: str = 'nearest_neighbors'):
         """
         Initialise le modèle Spectral Clustering.
         
         Args:
             n_clusters: Nombre de clusters à trouver
-            affinity: Type d'affinité ('rbf' for more distinctive results)
+            affinity: Type d'affinité (fixé à 'nearest_neighbors' pour des résultats optimaux)
         """
-        super().__init__(f"Spectral (k={n_clusters})")
+        super().__init__(f"Spectral (k={n_clusters})", use_vibrant_colors=True)
         if logger:
-            logger.info(f"Initializing Spectral Clustering with n_clusters={n_clusters}, affinity={affinity}")
+            logger.info(f"Initializing Spectral Clustering with n_clusters={n_clusters}")
         self.n_clusters = n_clusters
-        self.affinity = affinity
+        self.affinity = 'nearest_neighbors'  # Always use nearest_neighbors
         self.spectral = None
         self.cluster_centers = None
         self.labels = None
@@ -68,12 +68,12 @@ class SpectralClusteringModel(BaseClusteringModel):
         
         # Créer et entraîner le modèle Spectral Clustering
         if logger:
-            logger.info(f"[Spectral] Running Spectral Clustering with {self.n_clusters} clusters...")
+            logger.info(f"[Spectral] Running Spectral Clustering with {self.n_clusters} clusters, affinity={self.affinity}...")
         
         # Upgraded Spectral parameters - ULTRA-OPTIMIZED FOR SPEED
         self.spectral = SpectralClustering(
             n_clusters=self.n_clusters,
-            affinity='nearest_neighbors',  # MUCH FASTER than RBF (~5-10x)
+            affinity=self.affinity,  # Use the configured affinity type
             assign_labels='kmeans',
             n_init=5,          # Reduced from 8 for speed
             random_state=42,
@@ -195,17 +195,19 @@ class SpectralClusteringModel(BaseClusteringModel):
         
         return self.cluster_centers.copy()
 
-    def set_parameters(self, n_clusters: int = 3) -> None:
+    def set_parameters(self, n_clusters: int = 3, affinity: str = 'nearest_neighbors') -> None:
         """
         Change les paramètres du modèle.
         
         Args:
             n_clusters: Nouveau nombre de clusters
+            affinity: Ignoré (toujours 'nearest_neighbors')
         """
         if logger:
             logger.info(f"[Spectral] Changing parameters to n_clusters={n_clusters}")
         
         self.n_clusters = n_clusters
+        self.affinity = 'nearest_neighbors'  # Always nearest_neighbors
         self.spectral = None
         self.is_fitted = False
         self.name = f"Spectral (k={n_clusters})"

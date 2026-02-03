@@ -15,10 +15,10 @@ class AppConfig:
     DEFAULT_MEANSHIFT_BANDWIDTH = 25
     
     # Plages de sliders
-    CLUSTERS_MIN = 10       # Changed from 2 to 10
-    CLUSTERS_MAX = 20
-    BANDWIDTH_MIN = 10
-    BANDWIDTH_MAX = 50
+    CLUSTERS_MIN = 5        # Min clusters (K-Means, GMM, Spectral)
+    CLUSTERS_MAX = 25       # Max clusters
+    BANDWIDTH_MIN = 15      # Min bandwidth (MeanShift)
+    BANDWIDTH_MAX = 45      # Max bandwidth
     EPS_MIN = 5
     EPS_MAX = 100
     

@@ -6,7 +6,7 @@ import gc
 
 class GMMClusteringModel(BaseClusteringModel):
     def __init__(self, n_components: int = 3):
-        super().__init__(f"GMM (k={n_components})")
+        super().__init__(f"GMM (k={n_components})", use_vibrant_colors=True)
         self.n_components = n_components
         # Balanced GMM: good quality, FAST, and DISTINCTIVE
         # Using 'full' covariance for more interesting results

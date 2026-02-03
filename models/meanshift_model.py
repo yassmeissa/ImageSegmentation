@@ -24,7 +24,7 @@ class MeanShiftClusteringModel(BaseClusteringModel):
             bandwidth: Bande passante du kernel. Défaut: 25.0
         """
         self.bandwidth_param = bandwidth
-        super().__init__("MeanShift")
+        super().__init__("MeanShift", use_vibrant_colors=True)
         if logger:
             logger.info(f"Initializing MeanShift with bandwidth={bandwidth}")
         self.meanshift = None
