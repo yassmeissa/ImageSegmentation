@@ -638,9 +638,18 @@ class ImageSegmentationApplication:
             return
         
         try:
-            # Get pixel data from original image
-            original = self.image_processor.original_image
-            pixels = original.getdata()
+            import numpy as np
+            import matplotlib.pyplot as plt
+            from mpl_toolkits.mplot3d import Axes3D
+            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+            
+            # Get the currently segmented image to extract RGB data
+            segmented = self.image_processor.current_image
+            if segmented is None:
+                messagebox.showerror("Error", "No segmented image available")
+                return
+            
+            pixels = segmented.getdata()
             pixel_list = list(pixels)
             
             rgb_data = []
@@ -648,10 +657,9 @@ class ImageSegmentationApplication:
                 if isinstance(pixel, tuple):
                     rgb_data.append(pixel[:3])
             
-            import numpy as np
-            rgb_array = np.array(rgb_data)
+            rgb_array = np.array(rgb_data, dtype=np.float32)
             
-            # Get labels from the active model
+            # Get labels from the active model (use stored labels from last fit)
             model = self.clustering_models[self.active_model_name]
             
             if self.active_model_name == 'kmeans':
@@ -659,12 +667,12 @@ class ImageSegmentationApplication:
                 centers = model.kmeans.cluster_centers_
                 n_clusters = model.n_clusters
             elif self.active_model_name == 'gmm':
-                labels = model.gmm.predict(rgb_array)
+                labels = model.gmm.labels_
                 centers = model.gmm.means_
                 n_clusters = model.n_components
             elif self.active_model_name == 'spectral':
-                labels = model.spectral.labels_
-                n_clusters = model.n_clusters
+                labels = model.labels
+                n_clusters = len(np.unique(labels))
                 # For spectral clustering, compute centroids manually
                 centers = []
                 for i in range(n_clusters):
@@ -673,8 +681,8 @@ class ImageSegmentationApplication:
                         centers.append(cluster_points.mean(axis=0))
                 centers = np.array(centers)
             elif self.active_model_name == 'meanshift':
-                labels = model.meanshift.labels_
-                centers = model.meanshift.cluster_centers_
+                labels = model.labels
+                centers = model.cluster_centers
                 n_clusters = len(np.unique(labels))
             else:
                 messagebox.showerror("Error", f"Unknown model: {self.active_model_name}")

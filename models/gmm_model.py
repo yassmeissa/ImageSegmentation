@@ -22,6 +22,7 @@ class GMMClusteringModel(BaseClusteringModel):
 
     def fit(self, pixels_data: np.ndarray) -> None:
         self.gmm.fit(pixels_data)
+        self.gmm.labels_ = self.gmm.predict(pixels_data)
         self.cluster_centers = self.gmm.means_.astype(np.uint8)
         self.is_fitted = True
         gc.collect()
