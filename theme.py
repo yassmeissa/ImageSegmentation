@@ -1,11 +1,7 @@
-"""
-Centralized theme configuration for the application
-Ensures visual consistency across all components
-"""
 
 
 class Theme:
-    """Color palette and styling constants"""
+
     
     # Core colors
     BG = "#1e1e1e"              # Main background (dark)
@@ -35,7 +31,7 @@ class Theme:
     
     @staticmethod
     def get_button_style():
-        """Returns a dictionary of button styling"""
+
         return {
             "font": ("Segoe UI", 11, "bold"),
             "relief": "flat",
@@ -51,7 +47,7 @@ class Theme:
     
     @staticmethod
     def get_label_style():
-        """Returns a dictionary of label styling"""
+
         return {
             "bg": Theme.PANEL,
             "fg": Theme.TEXT
@@ -59,7 +55,7 @@ class Theme:
     
     @staticmethod
     def get_slider_style():
-        """Returns a dictionary of slider styling"""
+
         return {
             "bg": Theme.PANEL,
             "fg": Theme.TEXT,
@@ -69,7 +65,7 @@ class Theme:
     
     @staticmethod
     def get_model_color(model_name: str) -> str:
-        """Returns color for specific model"""
+
         color_map = {
             'kmeans': Theme.KMEANS_COLOR,
             'gmm': Theme.GMM_COLOR,

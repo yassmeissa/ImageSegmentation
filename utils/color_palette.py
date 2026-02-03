@@ -1,15 +1,11 @@
-"""
-Gestion des palettes de couleurs pour les clusters
-"""
 
 import json
 import os
 import numpy as np
 from pathlib import Path
 
-
 class ColorPalette:
-    """Classe pour gérer les palettes de couleurs"""
+
     
     PALETTES = {
         'vibrant': {
@@ -36,7 +32,7 @@ class ColorPalette:
     
     @staticmethod
     def generate_palette(palette_type, n_colors):
-        """Générer une palette de n couleurs"""
+
         if palette_type == 'vibrant':
             return ColorPalette._vibrant_palette(n_colors)
         elif palette_type == 'pastel':
@@ -50,7 +46,7 @@ class ColorPalette:
     
     @staticmethod
     def _vibrant_palette(n_colors):
-        """Palette vibrant (HSV: saturation=85%, value=95%)"""
+
         colors = []
         for i in range(n_colors):
             hue = (i / n_colors) % 1.0
@@ -84,7 +80,7 @@ class ColorPalette:
     
     @staticmethod
     def _pastel_palette(n_colors):
-        """Palette pastel (couleurs douces)"""
+
         colors = []
         for i in range(n_colors):
             hue = (i / n_colors) % 1.0
@@ -118,7 +114,7 @@ class ColorPalette:
     
     @staticmethod
     def _dark_palette(n_colors):
-        """Palette dark (couleurs sombres et intenses)"""
+
         colors = []
         for i in range(n_colors):
             hue = (i / n_colors) % 1.0
@@ -152,7 +148,7 @@ class ColorPalette:
     
     @staticmethod
     def _rainbow_palette(n_colors):
-        """Palette arc-en-ciel classique"""
+
         colors = []
         rainbow_hues = [0.0, 0.17, 0.33, 0.5, 0.67, 0.83]  # ROYGBV
         
@@ -188,7 +184,7 @@ class ColorPalette:
     
     @staticmethod
     def save_custom_palette(palette_name, colors):
-        """Sauvegarder une palette personnalisée"""
+
         palettes_dir = Path('palettes')
         palettes_dir.mkdir(exist_ok=True)
         
@@ -202,7 +198,7 @@ class ColorPalette:
     
     @staticmethod
     def load_custom_palette(palette_name):
-        """Charger une palette personnalisée"""
+
         palette_path = Path('palettes') / f"{palette_name}.json"
         
         if not palette_path.exists():
@@ -215,7 +211,7 @@ class ColorPalette:
     
     @staticmethod
     def list_custom_palettes():
-        """Lister toutes les palettes personnalisées"""
+
         palettes_dir = Path('palettes')
         
         if not palettes_dir.exists():

@@ -1,11 +1,3 @@
-"""
-Script de test - Clustering d'images
-Même workflow que le GUI:
-1. Choisir une image
-2. Choisir un modèle
-3. Configurer les paramètres du modèle
-4. Afficher le résultat
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -23,9 +15,8 @@ from models.spectral_model import SpectralClusteringModel
 from config import AppConfig
 import matplotlib.cm as cm
 
-
 def get_image_info(image_path):
-    """Charge et affiche les infos de l'image"""
+
     print(f"\nChargement de l'image: {os.path.basename(image_path)}")
     image = ImageLoader.load_image(image_path)
     img_array = np.array(image)
@@ -36,9 +27,8 @@ def get_image_info(image_path):
     
     return image, img_array
 
-
 def generate_palette(palette_name: str, n_colors: int):
-    """Generate a color palette using Matplotlib colormaps (same as GUI)"""
+
     try:
         colormap = cm.get_cmap(palette_name)
         colors = []
@@ -61,9 +51,8 @@ def generate_palette(palette_name: str, n_colors: int):
             colors.append([r, g, b])
         return np.array(colors, dtype=np.uint8)
 
-
 def select_palette():
-    """Permet à l'utilisateur de sélectionner une palette de couleurs"""
+
     palettes = ['viridis', 'plasma', 'inferno', 'cool', 'hot', 'spring', 'summer', 'autumn', 'winter', 'twilight']
     
     print("\nPalettes disponibles:")
@@ -90,9 +79,8 @@ def select_palette():
     print(f"⚠️ Palette inconnue, utilisation de 'viridis'")
     return 'viridis'
 
-
 def select_and_configure_kmeans(image):
-    """Configuration de K-Means"""
+
     print("\n" + "="*70)
     print("K-MEANS CLUSTERING - CONFIGURATION")
     print("="*70)
@@ -143,9 +131,8 @@ def select_and_configure_kmeans(image):
     
     return segmented, f"K-Means (clusters={n_clusters}, n_init={n_init}, max_iter={max_iter}, palette={palette})"
 
-
 def select_and_configure_gmm(image):
-    """Configuration de GMM"""
+
     print("\n" + "="*70)
     print("GMM CLUSTERING - CONFIGURATION")
     print("="*70)
@@ -192,9 +179,8 @@ def select_and_configure_gmm(image):
     
     return segmented, f"GMM (components={n_components}, max_iter={max_iter}, cov={cov_type}, palette={palette})"
 
-
 def select_and_configure_meanshift(image):
-    """Configuration de MeanShift"""
+
     print("\n" + "="*70)
     print("MEANSHIFT CLUSTERING - CONFIGURATION")
     print("="*70)
@@ -224,9 +210,8 @@ def select_and_configure_meanshift(image):
     
     return segmented, f"MeanShift (bandwidth={bandwidth}, palette={palette})"
 
-
 def select_and_configure_spectral(image):
-    """Configuration de Spectral Clustering"""
+
     print("\n" + "="*70)
     print("SPECTRAL CLUSTERING - CONFIGURATION")
     print("="*70)
@@ -256,9 +241,8 @@ def select_and_configure_spectral(image):
     
     return segmented, f"Spectral (clusters={n_clusters}, palette={palette})"
 
-
 def display_result(original_array, segmented_image, title):
-    """Affiche le résultat côte à côte"""
+
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
     fig.suptitle(f'Résultat du clustering - {title}', fontsize=14, fontweight='bold')
     
@@ -276,9 +260,8 @@ def display_result(original_array, segmented_image, title):
     plt.tight_layout()
     plt.show()
 
-
 def main():
-    """Fonction principale - Même workflow que le GUI"""
+
     print("\n" + "="*70)
     print("TEST DE CLUSTERING - WORKFLOW IDENTIQUE AU GUI")
     print("="*70)
@@ -364,7 +347,6 @@ def main():
     display_result(img_array, segmented, title)
     
     print("\n✅ Test terminé!")
-
 
 if __name__ == "__main__":
     main()

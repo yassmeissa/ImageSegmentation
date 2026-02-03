@@ -1,14 +1,10 @@
-"""
-Fenêtre de configuration unifiée : Paramètres + Palette
-"""
 
 from tkinter import Toplevel, Frame, Label, Scale, Button, Radiobutton, StringVar, Canvas, Scrollbar, VERTICAL
 from config import AppConfig
 from theme import Theme
 
-
 class ConfigurationDialog(Toplevel):
-    """Fenêtre unifiée pour sélectionner paramètres et palette"""
+
     
     def __init__(self, parent, model_name):
         super().__init__(parent)
@@ -40,7 +36,7 @@ class ConfigurationDialog(Toplevel):
         self.grab_set()
     
     def setup_ui(self):
-        """Configurer l'interface avec scroll"""
+
         # Container principal
         main_container = Frame(self, bg=Theme.BG)
         main_container.pack(fill='both', expand=True, padx=0, pady=0)
@@ -433,7 +429,7 @@ class ConfigurationDialog(Toplevel):
             canvas.yview_scroll(int(-1*(event.delta/120)), "units")
         
         def bind_to_all_children(widget):
-            """Récursivement bind mousewheel à tous les enfants"""
+
             widget.bind("<MouseWheel>", on_mousewheel)
             widget.bind("<Button-4>", lambda e: canvas.yview_scroll(-1, "units"))
             widget.bind("<Button-5>", lambda e: canvas.yview_scroll(1, "units"))
@@ -444,40 +440,40 @@ class ConfigurationDialog(Toplevel):
         bind_to_all_children(scrollable_frame)
     
     def on_clusters_changed(self, value):
-        """Callback pour le changement du slider clusters"""
+
         self.clusters_value = int(float(value))
         self.clusters_display.config(text=f"Value: {self.clusters_value}")
     
     def on_components_changed(self, value):
-        """Callback pour le changement du slider components (GMM)"""
+
         self.clusters_value = int(float(value))
         self.components_display.config(text=f"Value: {self.clusters_value}")
     
     def on_bandwidth_changed(self, value):
-        """Callback pour le changement du slider bandwidth"""
+
         self.bandwidth_value = float(value)
         self.bandwidth_display.config(text=f"Value: {self.bandwidth_value:.1f}")
     
     def on_ninit_changed(self, value):
-        """Callback pour le changement du slider n_init"""
+
         self.n_init_value = int(float(value))
         self.ninit_display.config(text=f"Value: {self.n_init_value}")
     
     def on_maxiter_changed(self, value):
-        """Callback pour le changement du slider max_iter"""
+
         self.max_iter_value = int(float(value))
         self.maxiter_display.config(text=f"Value: {self.max_iter_value}")
     
     def on_cov_changed(self):
-        """Callback pour le changement de covariance type"""
+
         self.cov_type = self.cov_var.get()
     
     def on_palette_changed(self):
-        """Callback pour le changement de palette"""
+
         self.palette_name = self.palette_var.get()
     
     def on_ok(self):
-        """Valider et fermer"""
+
         if self.is_kmeans:
             self.result = {
                 'clusters': self.clusters_value,
@@ -506,11 +502,11 @@ class ConfigurationDialog(Toplevel):
         self.destroy()
     
     def on_cancel(self):
-        """Annuler et fermer"""
+
         self.result = None
         self.destroy()
     
     def get_result(self):
-        """Obtenir le résultat"""
+
         self.wait_window()
         return self.result

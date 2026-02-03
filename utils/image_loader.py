@@ -2,7 +2,6 @@ from PIL import Image
 import os
 import gc
 
-
 class ImageLoader:
     SUPPORTED_FORMATS = ('.png', '.jpg', '.jpeg', '.bmp', '.gif')
     MAX_IMAGE_SIZE = 1024

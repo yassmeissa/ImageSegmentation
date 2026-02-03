@@ -4,7 +4,6 @@ from utils.image_loader import ImageLoader
 import gc
 import weakref
 
-
 class ImageProcessor:
     def __init__(self):
         self.current_image = Image.new("RGB", (600, 600), 'lightgrey')

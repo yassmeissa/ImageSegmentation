@@ -29,7 +29,6 @@ AppLogger.setup()
 from utils.logger import get_logger
 logger = get_logger()
 
-
 class ImageSegmentationApplication:
     def __init__(self):
         logger.info("Starting ImageSegmentationApplication")
@@ -395,7 +394,7 @@ class ImageSegmentationApplication:
         logger.info(f"[UI] Background thread started for {model_name}")
     
     def _update_params_display(self, model_name: str, config_result=None):
-        """Update the parameters display based on selected model"""
+
         params_text = ""
         if model_name == 'kmeans':
             clusters = config_result.get('clusters') if config_result else self.clustering_models['kmeans'].n_clusters
@@ -520,21 +519,21 @@ class ImageSegmentationApplication:
         self.spectral_button.set_active(self.active_model_name == 'spectral')
     
     def _disable_model_buttons(self):
-        """Disable model buttons during processing"""
+
         self.kmeans_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.gmm_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.meanshift_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.spectral_button.button.config(state=DISABLED, fg=Theme.DISABLED)
     
     def _enable_model_buttons(self):
-        """Enable model buttons after processing"""
+
         self.kmeans_button.button.config(state='normal', fg='#000000')
         self.gmm_button.button.config(state='normal', fg='#000000')
         self.meanshift_button.button.config(state='normal', fg='#000000')
         self.spectral_button.button.config(state='normal', fg='#000000')
     
     def _generate_palette(self, palette_name: str, n_colors: int):
-        """Generate a color palette using Matplotlib colormaps"""
+
         try:
             # Get colormap from matplotlib
             colormap = cm.get_cmap(palette_name)
@@ -580,7 +579,7 @@ class ImageSegmentationApplication:
             self.status_label.config(text="Ready")
 
     def compare_all_models(self):
-        """Lance le script de comparaison de tous les modèles"""
+
         import subprocess
         try:
             script_path = os.path.join(os.getcwd(), 'test_clustering.py')
@@ -592,7 +591,7 @@ class ImageSegmentationApplication:
     # ==================== BONUS FEATURES ====================
     
     def show_3d_visualization(self):
-        """Afficher la visualisation 3D des clusters"""
+
         if self.image_processor.current_image is None:
             messagebox.showwarning("Warning", "No segmented image available. Process an image first.")
             return
@@ -629,7 +628,7 @@ class ImageSegmentationApplication:
             logger.error(f"3D visualization error: {e}", exc_info=True)
     
     def export_3d_clusters(self):
-        """Exporter la visualisation 3D en PNG haute résolution pour le modèle sélectionné"""
+
         if self.image_processor.current_image is None:
             messagebox.showwarning("Warning", "No segmented image available.")
             return
@@ -785,7 +784,7 @@ class ImageSegmentationApplication:
             logger.error(f"3D export error: {e}", exc_info=True)
     
     def manage_palettes(self):
-        """Afficher les palettes de couleurs disponibles"""
+
         palette_window = Toplevel(self.window)
         palette_window.title("Available Color Palettes")
         palette_window.geometry("500x400")
@@ -835,7 +834,7 @@ class ImageSegmentationApplication:
         ModelButton(button_frame, "Close", palette_window.destroy).grid_layout(row=0, column=1, padx=5)
     
     def show_pca_analysis(self):
-        """Afficher l'analyse PCA de l'image"""
+
         if self.image_processor.original_image is None:
             messagebox.showwarning("Warning", "No image loaded")
             return
@@ -870,14 +869,6 @@ class ImageSegmentationApplication:
             variance_ratio = pca.get_explained_variance_ratio()
             total_variance = pca.get_total_variance_explained()
             
-            analysis_text = f"""PCA ANALYSIS REPORT
-=====================================
-
-Original Image: {original.size}
-Total Pixels: {len(pixel_list)}
-
-Variance Explained by Component:
-"""
             for i, var in enumerate(variance_ratio):
                 analysis_text += f"  Component {i+1}: {var:.2%}\n"
             
@@ -893,7 +884,7 @@ Variance Explained by Component:
             logger.error(f"PCA analysis error: {e}", exc_info=True)
     
     def save_result_advanced(self):
-        """Sauvegarde avancée avec options supplémentaires"""
+
         # Check if we have an image to save
         image_to_save = self.image_processor.current_image or self.image_processor.original_image
         
@@ -1022,7 +1013,7 @@ Variance Explained by Component:
         info_label.pack(pady=10, anchor='w')
         
         def save_with_format():
-            """Handle save operation"""
+
             format_choice = format_var.get()
             quality = quality_var.get()
             
@@ -1168,9 +1159,4 @@ Variance Explained by Component:
 
 if __name__ == '__main__':
     ImageSegmentationApplication()
-
-
-
-
-
 

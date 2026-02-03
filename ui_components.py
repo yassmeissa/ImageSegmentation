@@ -2,7 +2,6 @@ from tkinter import Button, Canvas, Frame, Scale, Label, HORIZONTAL, TOP, LEFT
 from PIL import Image, ImageTk
 from theme import Theme
 
-
 class ImageDisplayCanvas:
     def __init__(self, parent_frame: Frame, width: int, height: int):
         self.canvas = Canvas(
@@ -28,7 +27,7 @@ class ImageDisplayCanvas:
         self.canvas.bind("<B1-Motion>", self.drag)
 
     def set_image(self, image, reset_view=True):
-        """Set image and optionally reset zoom/pan"""
+
         if image is not self.original_image:
             self.original_image = image
             if reset_view:
@@ -38,11 +37,11 @@ class ImageDisplayCanvas:
         self._render_image()
 
     def display_image(self, image):
-        """Display image with zoom and pan support"""
+
         self.set_image(image, reset_view=True)
 
     def _render_image(self):
-        """Internal method to render the image with current zoom level"""
+
         if self.original_image is None:
             # Clear canvas if no image
             self.canvas.delete("all")
@@ -71,7 +70,7 @@ class ImageDisplayCanvas:
         self.canvas.create_image(x, y, image=self.photo_image_reference)
 
     def zoom(self, event):
-        """Zoom in/out with mouse wheel"""
+
         if self.original_image is None:
             return
         
@@ -86,11 +85,11 @@ class ImageDisplayCanvas:
         self._render_image()
 
     def start_drag(self, event):
-        """Start panning the image"""
+
         self.canvas.scan_mark(event.x, event.y)
 
     def drag(self, event):
-        """Pan the image"""
+
         self.canvas.scan_dragto(event.x, event.y, gain=1)
 
     def grid_layout(self, row: int, column: int, columnspan: int = 1, **kwargs):
@@ -98,7 +97,6 @@ class ImageDisplayCanvas:
 
     def pack(self, **kwargs):
         self.canvas.pack(**kwargs)
-
 
 class ModelButton:
     def __init__(self, parent_frame: Frame, label: str, model_name: str = None, on_click=None):
@@ -133,13 +131,13 @@ class ModelButton:
         self.is_active = False
 
     def on_hover(self, event):
-        """Handle hover effect"""
+
         if not self.is_active:
             # Darken the button color on hover
             self.button.config(relief="raised", borderwidth=2)
 
     def on_leave(self, event):
-        """Handle leave effect"""
+
         if not self.is_active:
             self.button.config(relief="flat", borderwidth=0)
 
@@ -147,7 +145,7 @@ class ModelButton:
         self.button.grid(row=row, column=column, padx=padx, pady=pady, **kwargs)
 
     def set_active(self, is_active: bool):
-        """Set button active/inactive state"""
+
         self.is_active = is_active
         if is_active:
             self.button.config(relief="sunken", borderwidth=3)
@@ -155,9 +153,8 @@ class ModelButton:
             self.button.config(relief="flat", borderwidth=0)
         
     def pack(self, **kwargs):
-        """Pack the button"""
-        self.button.pack(**kwargs)
 
+        self.button.pack(**kwargs)
 
 class ParameterSlider:
     def __init__(self, parent_frame: Frame, label: str, min_value: int, max_value: int, initial_value: int):
@@ -207,7 +204,7 @@ class ParameterSlider:
         self.slider.config(command=update_with_label)
     
     def set_enabled(self, enabled: bool):
-        """Enable or disable the slider"""
+
         state = "normal" if enabled else "disabled"
         self.slider.config(state=state)
         self.label.config(fg=Theme.TEXT if enabled else Theme.DISABLED)
@@ -215,9 +212,8 @@ class ParameterSlider:
     def grid_layout(self, row: int, column: int, **kwargs):
         self.slider_frame.grid(row=row, column=column, sticky='ew', **kwargs)
 
-
 class ComparisonCanvas:
-    """Side-by-side image comparison (Before/After)"""
+
     
     def __init__(self, parent_frame: Frame, width: int, height: int):
         self.parent_frame = parent_frame
@@ -238,13 +234,12 @@ class ComparisonCanvas:
         self.canvas_segmented = ImageDisplayCanvas(self.container, width // 2 - 10, height)
     
     def pack(self, **kwargs):
-        """Pack the comparison container"""
+
         self.container.pack(**kwargs)
         # Initially show only original canvas
         self.canvas_original.canvas.pack(side=LEFT, fill='both', expand=True, padx=5)
     
     def display_images(self, original, segmented):
-        """Display images based on segmentation state"""
 
         # Clear everything first (IMPORTANT)
         for widget in self.container.winfo_children():

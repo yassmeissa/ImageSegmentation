@@ -1,8 +1,3 @@
-"""
-Script de validation - Tests automatiques de tous les modèles
-Teste tous les modèles avec des paramètres prédéfinis
-Génère un rapport de validation
-"""
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -25,9 +20,8 @@ from models.spectral_model import SpectralClusteringModel
 from config import AppConfig
 import matplotlib.cm as cm
 
-
 class ValidationReport:
-    """Classe pour générer un rapport de validation"""
+
     
     def __init__(self):
         self.results = {}
@@ -35,7 +29,7 @@ class ValidationReport:
         self.end_time = None
     
     def add_result(self, model_name, image_name, params, execution_time, success=True, error=None):
-        """Ajouter un résultat au rapport"""
+
         if model_name not in self.results:
             self.results[model_name] = []
         
@@ -48,7 +42,7 @@ class ValidationReport:
         })
     
     def print_report(self):
-        """Afficher le rapport de validation"""
+
         print("\n" + "="*80)
         print("RAPPORT DE VALIDATION")
         print("="*80)
@@ -80,9 +74,8 @@ class ValidationReport:
         print(f"RÉSUMÉ: {total_success}/{total_tests} tests réussis ({100*total_success/total_tests:.1f}%)")
         print(f"{'='*80}\n")
 
-
 def generate_palette(palette_name: str, n_colors: int):
-    """Générer une palette de couleurs"""
+
     try:
         colormap = cm.get_cmap(palette_name)
         colors = []
@@ -104,9 +97,8 @@ def generate_palette(palette_name: str, n_colors: int):
             colors.append([r, g, b])
         return np.array(colors, dtype=np.uint8)
 
-
 def test_kmeans(image, image_name, report):
-    """Test K-Means"""
+
     print("\n" + "-"*80)
     print("TEST K-MEANS")
     print("-"*80)
@@ -133,9 +125,8 @@ def test_kmeans(image, image_name, report):
         print(f"  ❌ Erreur: {str(e)}")
         report.add_result('K-Means', image_name, config, elapsed, success=False, error=str(e))
 
-
 def test_gmm(image, image_name, report):
-    """Test GMM"""
+
     print("\n" + "-"*80)
     print("TEST GMM")
     print("-"*80)
@@ -162,9 +153,8 @@ def test_gmm(image, image_name, report):
         print(f"  ❌ Erreur: {str(e)}")
         report.add_result('GMM', image_name, config, elapsed, success=False, error=str(e))
 
-
 def test_meanshift(image, image_name, report):
-    """Test MeanShift"""
+
     print("\n" + "-"*80)
     print("TEST MEANSHIFT")
     print("-"*80)
@@ -189,9 +179,8 @@ def test_meanshift(image, image_name, report):
         print(f"  ❌ Erreur: {str(e)}")
         report.add_result('MeanShift', image_name, config, elapsed, success=False, error=str(e))
 
-
 def test_spectral(image, image_name, report):
-    """Test Spectral Clustering"""
+
     print("\n" + "-"*80)
     print("TEST SPECTRAL CLUSTERING")
     print("-"*80)
@@ -216,9 +205,8 @@ def test_spectral(image, image_name, report):
         print(f"  ❌ Erreur: {str(e)}")
         report.add_result('Spectral', image_name, config, elapsed, success=False, error=str(e))
 
-
 def display_comparison(image, segmented_results):
-    """Affiche une comparaison de tous les résultats"""
+
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     fig.suptitle('Comparaison des modèles de clustering', fontsize=16, fontweight='bold')
     
@@ -239,9 +227,8 @@ def display_comparison(image, segmented_results):
     plt.tight_layout()
     plt.show()
 
-
 def main():
-    """Fonction principale"""
+
     print("\n" + "="*80)
     print("TESTS DE VALIDATION - TOUS LES MODÈLES")
     print("="*80)
@@ -294,7 +281,6 @@ def main():
     report.print_report()
     
     print("\n✅ Tests de validation terminés!")
-
 
 if __name__ == "__main__":
     main()

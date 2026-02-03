@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime
 
-
 class AppLogger:
     _logger = None
     
@@ -35,7 +34,6 @@ class AppLogger:
         if cls._logger is None:
             cls.setup()
         return cls._logger
-
 
 def get_logger():
     return AppLogger.get_logger()

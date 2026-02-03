@@ -1,22 +1,12 @@
-"""
-Prétraitement des données avec ACP (PCA)
-"""
 
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-
 class PCAPreprocessing:
-    """Classe pour appliquer l'ACP en prétraitement"""
+
     
     def __init__(self, n_components=2):
-        """
-        Initialiser PCA
-        
-        Args:
-            n_components: Nombre de composantes principales (généralement 2 ou 3)
-        """
         self.n_components = n_components
         self.pca = PCA(n_components=n_components)
         self.scaler = StandardScaler()
@@ -24,15 +14,6 @@ class PCAPreprocessing:
         self.original_shape = None
     
     def fit_transform(self, pixels):
-        """
-        Appliquer PCA aux données
-        
-        Args:
-            pixels: Array de pixels (N, 3) en RGB
-            
-        Returns:
-            Array transformé (N, n_components)
-        """
         self.original_shape = pixels.shape
         
         # Normaliser les données
@@ -46,42 +27,42 @@ class PCAPreprocessing:
         return pixels_transformed
     
     def get_explained_variance_ratio(self):
-        """Obtenir le ratio de variance expliquée par chaque composante"""
+
         if not self.is_fitted:
             return None
         
         return self.pca.explained_variance_ratio_
     
     def get_total_variance_explained(self):
-        """Obtenir la variance totale expliquée"""
+
         if not self.is_fitted:
             return None
         
         return np.sum(self.pca.explained_variance_ratio_)
     
     def get_components(self):
-        """Obtenir les composantes principales"""
+
         if not self.is_fitted:
             return None
         
         return self.pca.components_
     
     def get_mean(self):
-        """Obtenir la moyenne des données"""
+
         if not self.is_fitted:
             return None
         
         return self.scaler.mean_
     
     def get_std(self):
-        """Obtenir l'écart-type des données"""
+
         if not self.is_fitted:
             return None
         
         return self.scaler.scale_
     
     def print_summary(self):
-        """Afficher un résumé de l'ACP"""
+
         if not self.is_fitted:
             print("[ERREUR] PCA n'a pas été appliquée")
             return
@@ -98,23 +79,11 @@ class PCAPreprocessing:
         print(f"\nVariance totale expliquée: {total*100:.2f}%")
         print("="*70 + "\n")
 
-
 class PCAComparison:
-    """Classe pour comparer les résultats avec et sans PCA"""
+
     
     @staticmethod
     def compare_clustering(pixels, labels_original, labels_pca=None):
-        """
-        Comparer les résultats de clustering avec et sans PCA
-        
-        Args:
-            pixels: Array de pixels originaux
-            labels_original: Labels du clustering sans PCA
-            labels_pca: Labels du clustering avec PCA
-            
-        Returns:
-            Dict avec les statistiques de comparaison
-        """
         stats = {
             'original_clusters': len(np.unique(labels_original)),
             'pca_clusters': len(np.unique(labels_pca)) if labels_pca is not None else None,

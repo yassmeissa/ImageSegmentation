@@ -8,23 +8,9 @@ try:
 except:
     logger = None
 
-
 class SpectralClusteringModel(BaseClusteringModel):
-    """
-    Modèle de clustering utilisant l'algorithme Spectral Clustering.
-    
-    Spectral Clustering utilise les vecteurs propres de la matrice de similitude
-    pour identifier les clusters.
-    """
     
     def __init__(self, n_clusters: int = 3, affinity: str = 'nearest_neighbors'):
-        """
-        Initialise le modèle Spectral Clustering.
-        
-        Args:
-            n_clusters: Nombre de clusters à trouver
-            affinity: Type d'affinité (fixé à 'nearest_neighbors' pour des résultats optimaux)
-        """
         super().__init__(f"Spectral (k={n_clusters})", use_vibrant_colors=True)
         if logger:
             logger.info(f"Initializing Spectral Clustering with n_clusters={n_clusters}")
@@ -36,12 +22,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         self.original_pixels = None
 
     def fit(self, pixels_data: np.ndarray) -> None:
-        """
-        Entraîne le modèle Spectral Clustering sur les données de pixels.
-        
-        Args:
-            pixels_data: Données des pixels (n_pixels, 3) en float32
-        """
         if logger:
             logger.info(f"[Spectral] Starting fit with {len(pixels_data)} pixels")
             logger.debug(f"[Spectral] pixels_data shape: {pixels_data.shape}, dtype: {pixels_data.dtype}")
@@ -139,18 +119,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         gc.collect()
 
     def predict(self, pixels_data: np.ndarray) -> np.ndarray:
-        """
-        Retourne les labels de cluster pour les données.
-        
-        Args:
-            pixels_data: Données des pixels
-            
-        Returns:
-            Labels de cluster pour chaque pixel
-            
-        Raises:
-            RuntimeError: Si le modèle n'est pas entraîné
-        """
         if logger:
             logger.debug(f"[Spectral] predict() called with {len(pixels_data)} pixels")
         
@@ -173,15 +141,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         return result
 
     def get_cluster_centers(self) -> np.ndarray:
-        """
-        Retourne les centres des clusters.
-        
-        Returns:
-            Array des centres de clusters (n_clusters, 3) en uint8
-            
-        Raises:
-            RuntimeError: Si le modèle n'est pas entraîné
-        """
         if logger:
             logger.debug(f"[Spectral] get_cluster_centers() called")
         
@@ -196,13 +155,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         return self.cluster_centers.copy()
 
     def set_parameters(self, n_clusters: int = 3, affinity: str = 'nearest_neighbors') -> None:
-        """
-        Change les paramètres du modèle.
-        
-        Args:
-            n_clusters: Nouveau nombre de clusters
-            affinity: Ignoré (toujours 'nearest_neighbors')
-        """
         if logger:
             logger.info(f"[Spectral] Changing parameters to n_clusters={n_clusters}")
         

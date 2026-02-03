@@ -3,7 +3,6 @@ import numpy as np
 from .base_model import BaseClusteringModel
 import gc
 
-
 class GMMClusteringModel(BaseClusteringModel):
     def __init__(self, n_components: int = 3):
         super().__init__(f"GMM (k={n_components})", use_vibrant_colors=True)

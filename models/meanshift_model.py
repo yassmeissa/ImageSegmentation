@@ -8,21 +8,9 @@ try:
 except:
     logger = None
 
-
 class MeanShiftClusteringModel(BaseClusteringModel):
-    """
-    Modèle de clustering utilisant l'algorithme MeanShift.
-    
-    MeanShift trouve les clusters en cherchant les modes de la densité.
-    """
     
     def __init__(self, bandwidth: float = 25.0):
-        """
-        Initialise le modèle MeanShift.
-        
-        Args:
-            bandwidth: Bande passante du kernel. Défaut: 25.0
-        """
         self.bandwidth_param = bandwidth
         super().__init__("MeanShift", use_vibrant_colors=True)
         if logger:
@@ -33,12 +21,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         self.original_pixels = None
 
     def fit(self, pixels_data: np.ndarray) -> None:
-        """
-        Entraîne le modèle MeanShift sur les données de pixels.
-        
-        Args:
-            pixels_data: Données des pixels (n_pixels, 3) en float32
-        """
         if logger:
             logger.info(f"[MeanShift] Starting fit with {len(pixels_data)} pixels")
             logger.debug(f"[MeanShift] pixels_data shape: {pixels_data.shape}, dtype: {pixels_data.dtype}")
@@ -138,18 +120,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         gc.collect()
 
     def predict(self, pixels_data: np.ndarray) -> np.ndarray:
-        """
-        Retourne les labels de cluster pour les données.
-        
-        Args:
-            pixels_data: Données des pixels
-            
-        Returns:
-            Labels de cluster pour chaque pixel
-            
-        Raises:
-            RuntimeError: Si le modèle n'est pas entraîné
-        """
         if logger:
             logger.debug(f"[MeanShift] predict() called with {len(pixels_data)} pixels")
         
@@ -172,15 +142,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         return result
 
     def get_cluster_centers(self) -> np.ndarray:
-        """
-        Retourne les centres des clusters.
-        
-        Returns:
-            Array des centres de clusters (n_clusters, 3) en uint8
-            
-        Raises:
-            RuntimeError: Si le modèle n'est pas entraîné
-        """
         if logger:
             logger.debug(f"[MeanShift] get_cluster_centers() called")
         
@@ -195,12 +156,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         return self.cluster_centers.copy()
 
     def set_parameters(self, bandwidth: float = None) -> None:
-        """
-        Change les paramètres du modèle.
-        
-        Args:
-            bandwidth: Nouvelle bande passante
-        """
         if logger:
             logger.info(f"[MeanShift] Changing parameters to bandwidth={bandwidth}")
         

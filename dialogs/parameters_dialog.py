@@ -1,14 +1,10 @@
-"""
-Fenêtre de dialogue pour les paramètres des modèles
-"""
 
 from tkinter import Toplevel, Frame, Label, Scale, Button, messagebox
 from config import AppConfig
 from theme import Theme
 
-
 class ParametersDialog(Toplevel):
-    """Fenêtre de sélection des paramètres"""
+
     
     def __init__(self, parent, model_name, current_clusters=None, current_bandwidth=None):
         super().__init__(parent)
@@ -30,7 +26,7 @@ class ParametersDialog(Toplevel):
         self.grab_set()
     
     def setup_ui(self):
-        """Configurer l'interface"""
+
         # Frame principal
         main_frame = Frame(self, bg=Theme.PANEL, relief='groove', borderwidth=2)
         main_frame.pack(fill='both', expand=True, padx=15, pady=15)
@@ -137,17 +133,17 @@ class ParametersDialog(Toplevel):
         cancel_btn.pack(side='left', padx=5)
     
     def on_clusters_changed(self, value):
-        """Callback pour le changement du slider clusters"""
+
         self.clusters_value = int(float(value))
         self.clusters_display.config(text=f"Valeur: {self.clusters_value}")
     
     def on_bandwidth_changed(self, value):
-        """Callback pour le changement du slider bandwidth"""
+
         self.bandwidth_value = float(value)
         self.bandwidth_display.config(text=f"Valeur: {self.bandwidth_value:.1f}")
     
     def on_ok(self):
-        """Valider et fermer"""
+
         if self.is_meanshift:
             self.result = {'bandwidth': self.bandwidth_value}
         else:
@@ -155,11 +151,11 @@ class ParametersDialog(Toplevel):
         self.destroy()
     
     def on_cancel(self):
-        """Annuler et fermer"""
+
         self.result = None
         self.destroy()
     
     def get_result(self):
-        """Obtenir le résultat"""
+
         self.wait_window()
         return self.result

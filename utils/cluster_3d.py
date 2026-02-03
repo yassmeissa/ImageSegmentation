@@ -1,26 +1,14 @@
-"""
-Visualisation 3D des clusters avec matplotlib
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import cm
 
-
 class Cluster3DVisualization:
-    """Classe pour visualiser les clusters en 3D"""
+
     
     @staticmethod
     def plot_clusters_3d(pixels, labels, title="Clusters 3D (RGB)"):
-        """
-        Afficher les clusters en 3D dans l'espace RGB
-        
-        Args:
-            pixels: Array de pixels (N, 3) en RGB
-            labels: Array de labels des clusters (N,)
-            title: Titre du graphique
-        """
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         
@@ -54,15 +42,6 @@ class Cluster3DVisualization:
     
     @staticmethod
     def plot_clusters_3d_with_centers(pixels, labels, centers, title="Clusters 3D avec centres"):
-        """
-        Afficher les clusters en 3D avec les centres de clusters
-        
-        Args:
-            pixels: Array de pixels (N, 3) en RGB
-            labels: Array de labels des clusters (N,)
-            centers: Array des centres de clusters (K, 3)
-            title: Titre du graphique
-        """
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         
@@ -109,15 +88,6 @@ class Cluster3DVisualization:
     
     @staticmethod
     def save_clusters_3d(pixels, labels, output_path, title="Clusters 3D (RGB)"):
-        """
-        Sauvegarder la visualisation 3D en image
-        
-        Args:
-            pixels: Array de pixels (N, 3) en RGB
-            labels: Array de labels des clusters (N,)
-            output_path: Chemin du fichier de sortie
-            title: Titre du graphique
-        """
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         

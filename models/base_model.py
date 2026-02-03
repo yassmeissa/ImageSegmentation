@@ -9,7 +9,6 @@ try:
 except:
     logger = None
 
-
 class BaseClusteringModel(ABC):
     def __init__(self, name: str, use_vibrant_colors: bool = True):
         self.name = name
@@ -20,15 +19,6 @@ class BaseClusteringModel(ABC):
     
     @staticmethod
     def generate_vibrant_palette(n_colors: int) -> np.ndarray:
-        """
-        Generate a vibrant color palette using HSV color space
-        
-        Args:
-            n_colors: Number of colors to generate
-            
-        Returns:
-            Array of RGB colors (n_colors, 3)
-        """
         if n_colors == 0:
             return np.array([[128, 128, 128]], dtype=np.uint8)
         
