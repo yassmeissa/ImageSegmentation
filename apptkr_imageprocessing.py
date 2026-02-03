@@ -84,8 +84,7 @@ class ImageSegmentationApplication:
         file_menu = Menu(menu_bar, tearoff=0)
         menu_bar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Open Image", command=self.open_image_file)
-        file_menu.add_command(label="Save Result", command=self.save_result_image)
-        file_menu.add_command(label="Save As (Advanced)", command=self.save_result_advanced)
+        file_menu.add_command(label="Save Result", command=self.save_result_advanced)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.window.destroy)
         
@@ -187,11 +186,8 @@ class ImageSegmentationApplication:
         open_btn = ModelButton(operations_frame, "Open Image", self.open_image_file)
         open_btn.grid_layout(row=0, column=0, padx=5, pady=5)
         
-        save_btn = ModelButton(operations_frame, "Save Result", self.save_result_image)
+        save_btn = ModelButton(operations_frame, "Save Result", self.save_result_advanced)
         save_btn.grid_layout(row=1, column=0, padx=5, pady=5)
-        
-        save_adv_btn = ModelButton(operations_frame, "Save (Advanced)", self.save_result_advanced)
-        save_adv_btn.grid_layout(row=2, column=0, padx=5, pady=5)
         
         # Right panel - Canvas with comparison
         right_panel = Frame(content_frame, bg=Theme.BG)
@@ -499,41 +495,6 @@ class ImageSegmentationApplication:
         if not self.is_processing:
             self.status_label.config(text="Ready")
 
-    def save_result_image(self):
-        """Sauvegarde rapide de l'image segmentée"""
-        if self.image_processor.current_image is None:
-            messagebox.showwarning("⚠️  Warning", "No result image to save. Process an image first!")
-            return
-        
-        from datetime import datetime
-        
-        # Generate default filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        model_name = self.active_model_name or "segmented"
-        default_filename = f"segmentation_{model_name}_{timestamp}.png"
-        
-        file_path = filedialog.asksaveasfilename(
-            defaultextension=".png",
-            initialfile=default_filename,
-            filetypes=(("PNG images", "*.png"), ("JPEG images", "*.jpg"), ("BMP images", "*.bmp"), ("All files", "*.*"))
-        )
-        
-        if file_path:
-            try:
-                self.image_processor.save_current_image(file_path)
-                file_size = os.path.getsize(file_path) / 1024  # Size in KB
-                messagebox.showinfo(
-                    "✅ Success",
-                    f"Image saved successfully!\n\n"
-                    f"File: {os.path.basename(file_path)}\n"
-                    f"Size: {file_size:.1f} KB\n"
-                    f"Location: {os.path.dirname(file_path)}"
-                )
-                print(f"✅ Image saved: {file_path}")
-            except Exception as e:
-                messagebox.showerror("❌ Error", f"Could not save image:\n{str(e)}")
-                print(f"❌ Error saving image: {e}")
-
     def compare_all_models(self):
         """Lance le script de comparaison de tous les modèles"""
         import subprocess
@@ -731,8 +692,11 @@ Variance Explained by Component:
     
     def save_result_advanced(self):
         """Sauvegarde avancée avec options supplémentaires"""
-        if self.image_processor.current_image is None:
-            messagebox.showwarning("Warning", "No result image to save")
+        # Check if we have an image to save
+        image_to_save = self.image_processor.current_image or self.image_processor.original_image
+        
+        if image_to_save is None:
+            messagebox.showwarning("⚠️  Warning", "No image to save. Load an image first!")
             return
         
         from datetime import datetime
@@ -834,14 +798,14 @@ Variance Explained by Component:
                 try:
                     if format_choice == "png_hires":
                         # Save with higher DPI info
-                        self.image_processor.current_image.save(file_path, dpi=(300, 300))
+                        image_to_save.save(file_path, dpi=(300, 300))
                         messagebox.showinfo("✅ Success", f"High-resolution image saved:\n{file_path}")
                     elif format_choice == "jpg":
                         # Save JPEG with specified quality
-                        self.image_processor.current_image.save(file_path, "JPEG", quality=quality)
+                        image_to_save.save(file_path, "JPEG", quality=quality)
                         messagebox.showinfo("✅ Success", f"Image saved (Quality: {quality}):\n{file_path}")
                     else:
-                        self.image_processor.save_current_image(file_path)
+                        image_to_save.save(file_path)
                         messagebox.showinfo("✅ Success", f"Image saved:\n{file_path}")
                     save_window.destroy()
                 except Exception as e:
