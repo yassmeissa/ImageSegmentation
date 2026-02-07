@@ -1,10 +1,8 @@
-# Fix matplotlib compatibility with macOS BEFORE any other imports
 import os
 import sys
 
-# Set matplotlib backend before importing anything else
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
+matplotlib.use('Agg')  
 import matplotlib.cm as cm
 
 from tkinter import Tk, Menu, Frame, Label, filedialog, messagebox, Canvas, Checkbutton, IntVar, Toplevel, Listbox, Scrollbar, Radiobutton, StringVar, Text, SINGLE, END, Y, LEFT, RIGHT, BOTH, DISABLED
@@ -51,7 +49,6 @@ class ImageSegmentationApplication:
         self.is_processing = False
         self.processing_thread = None
         
-        # Bonus features
         self.color_palette = ColorPalette()
         self.use_pca = IntVar(value=0)
         self.current_palette_name = 'viridis'
@@ -60,7 +57,6 @@ class ImageSegmentationApplication:
         self.setup_menu()
         self.setup_ui()
         
-        # Display image after window is rendered
         self.window.after(100, self.refresh_display)
         self.check_processing()
         self.window.mainloop()
@@ -85,24 +81,20 @@ class ImageSegmentationApplication:
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self.window.destroy)
         
-        # Visualization menu
         viz_menu = Menu(menu_bar, tearoff=0)
         menu_bar.add_cascade(label="Visualization", menu=viz_menu)
         viz_menu.add_command(label="View 3D Clusters", command=self.show_3d_visualization)
         viz_menu.add_command(label="Export 3D (PNG)", command=self.export_3d_clusters)
         
-        # Tools menu
         tools_menu = Menu(menu_bar, tearoff=0)
         menu_bar.add_cascade(label="Tools", menu=tools_menu)
         tools_menu.add_command(label="Color Palettes", command=self.manage_palettes)
         tools_menu.add_command(label="PCA Analysis", command=self.show_pca_analysis)
 
     def setup_ui(self):
-        # Main container
         main_frame = Frame(self.window, bg=Theme.BG)
         main_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
-        # Header
         header_frame = Frame(main_frame, bg=Theme.ACCENT, height=60)
         header_frame.pack(fill='x', padx=0, pady=(0, 15))
         header_frame.pack_propagate(False)
@@ -116,17 +108,14 @@ class ImageSegmentationApplication:
         )
         header_label.pack(pady=15)
         
-        # Content area (left: controls, right: canvas)
         content_frame = Frame(main_frame, bg=Theme.BG)
         content_frame.pack(fill='both', expand=True)
         
-        # Left panel - Controls
         left_panel = Frame(content_frame, bg=Theme.PANEL, relief='groove', borderwidth=2)
         left_panel.pack(side='left', fill='y', padx=(0, 15))
         left_panel.pack_propagate(False)
         left_panel.config(width=280)
         
-        # Models section
         models_label = Label(
             left_panel,
             text="Clustering Models",
@@ -151,23 +140,18 @@ class ImageSegmentationApplication:
         self.spectral_button = ModelButton(buttons_frame, "Spectral", 'spectral', lambda: self.apply_model('spectral'))
         self.spectral_button.grid_layout(row=3, column=0, padx=5, pady=5)
         
-        # Disable model buttons initially (until image is loaded)
         self.kmeans_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.gmm_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.meanshift_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.spectral_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         
-        # Separator
         sep1 = Frame(left_panel, bg=Theme.MUTED, height=1)
         sep1.pack(fill='x', padx=10, pady=10)
         
-        # Note: Parameters will be configured in a dialog after model selection
         
-        # Separator
         sep2 = Frame(left_panel, bg=Theme.MUTED, height=1)
         sep2.pack(fill='x', padx=10, pady=10)
         
-        # PCA Preprocessing section
         pca_label = Label(
             left_panel,
             text="Preprocessing",
@@ -199,11 +183,11 @@ class ImageSegmentationApplication:
         )
         self.pca_info_label.pack(anchor='w', padx=20, pady=(0, 10))
         
-        # Separator
+
         sep3 = Frame(left_panel, bg=Theme.MUTED, height=1)
         sep3.pack(fill='x', padx=10, pady=10)
         
-        # File operations
+
         file_label = Label(
             left_panel,
             text="Operations",
@@ -225,11 +209,9 @@ class ImageSegmentationApplication:
         export_3d_btn = ModelButton(operations_frame, "Export 3D", on_click=self.export_3d_clusters)
         export_3d_btn.grid_layout(row=2, column=0, padx=5, pady=5)
         
-        # Right panel - Canvas with comparison
         right_panel = Frame(content_frame, bg=Theme.BG)
         right_panel.pack(side='right', fill='both', expand=True)
         
-        # Model info + canvas label area
         info_frame = Frame(right_panel, bg=Theme.PANEL, height=60)
         info_frame.pack(fill='x', padx=10, pady=(0, 10))
         info_frame.pack_propagate(False)
@@ -252,7 +234,6 @@ class ImageSegmentationApplication:
         )
         self.params_info_label.pack(pady=(0, 5), padx=15, anchor='w')
         
-        # Use comparison canvas for before/after view
         self.comparison_canvas = ComparisonCanvas(
             right_panel, 
             AppConfig.CANVAS_WIDTH, 
@@ -260,7 +241,6 @@ class ImageSegmentationApplication:
         )
         self.comparison_canvas.pack(fill='both', expand=True, padx=10, pady=10)
         
-        # Status bar - Enhanced with progress indicator
         status_frame = Frame(self.window, bg=Theme.PANEL, height=35)
         status_frame.pack(fill='x', side='bottom')
         status_frame.pack_propagate(False)
@@ -293,20 +273,16 @@ class ImageSegmentationApplication:
         if file_path:
             try:
                 self.image_processor.load_from_file(file_path)
-                # Store the original image path for auto-naming
                 self.image_processor.original_image_path = file_path
 
-                # ✅ Reset segmentation state
                 self.image_processor.current_image = None
                 self.comparison_canvas.has_segmentation = False
 
-                # ✅ Enable model buttons now that image is loaded
                 self.kmeans_button.button.config(state='normal', fg='#000000')
                 self.gmm_button.button.config(state='normal', fg='#000000')
                 self.meanshift_button.button.config(state='normal', fg='#000000')
                 self.spectral_button.button.config(state='normal', fg='#000000')
                 
-                # Update info label
                 self.model_info_label.config(
                     text="Image loaded! Select a clustering model",
                     fg=Theme.ACCENT
@@ -326,23 +302,19 @@ class ImageSegmentationApplication:
             messagebox.showwarning("Warning", "Please load an image first")
             return
         
-        # Ouvrir la fenêtre de configuration
         model_names = {'kmeans': 'K-Means', 'gmm': 'GMM', 'meanshift': 'MeanShift', 'spectral': 'Spectral'}
         dialog = ConfigurationDialog(self.window, model_names.get(model_name, model_name))
         result = dialog.get_result()
         
         if not result:
-            return  # User cancelled
+            return  
         
-        # Disable model buttons during processing
         self._disable_model_buttons()
         
-        # Apply configuration
         logger.info(f"[UI] Applying model: {model_name}")
         self.active_model_name = model_name
         self.current_palette_name = result.get('palette', 'viridis')
         
-        # Update parameters based on model type
         if model_name == 'kmeans':
             n_clusters = result.get('clusters', AppConfig.DEFAULT_KMEANS_CLUSTERS)
             n_init = result.get('n_init', 30)
@@ -370,13 +342,11 @@ class ImageSegmentationApplication:
         
         self.update_button_states()
         
-        # Update model info label
         self.model_info_label.config(
             text=f"Processing: {model_names.get(model_name, model_name)}",
             fg=Theme.get_model_color(model_name)
         )
         
-        # Show parameters
         self._update_params_display(model_name, result)
         
         self.is_processing = True
@@ -425,7 +395,6 @@ class ImageSegmentationApplication:
             original = self.image_processor.original_image
             logger.debug(f"[Thread] Image obtained: {original.size}")
             
-            # Extract and store original RGB data
             pixels = original.getdata()
             pixel_list = list(pixels)
             rgb_data = []
@@ -434,27 +403,23 @@ class ImageSegmentationApplication:
                     rgb_data.append(pixel[:3])
             original_rgb_array = np.array(rgb_data, dtype=np.float32)
             
-            # Apply PCA preprocessing if enabled
             pca_info = ""
             pca_data = None
-            visualization_data = original_rgb_array.copy()  # Default: use original RGB for 3D
+            visualization_data = original_rgb_array.copy()
             
             if self.use_pca.get():
                 logger.info("[Thread] PCA preprocessing enabled, applying...")
                 try:
-                    # Apply PCA
                     pca = PCAPreprocessing(n_components=self.pca_components)
                     pca_data = pca.fit_transform(original_rgb_array)
-                    visualization_data = pca_data  # Use PCA data for 3D visualization
+                    visualization_data = pca_data
                     
-                    # Get variance explained
                     variance_ratio = pca.get_explained_variance_ratio()
                     total_variance = pca.get_total_variance_explained()
                     
                     pca_info = f"PCA: {total_variance:.1%} variance explained"
                     logger.info(f"[Thread] PCA applied: {pca_info}")
                     
-                    # Store PCA transformer for potential future use
                     self.image_processor.pca_transformer = pca
                     self.image_processor.pca_data = pca_data
                     self.image_processor.use_pca = True
@@ -465,22 +430,18 @@ class ImageSegmentationApplication:
             else:
                 self.image_processor.use_pca = False
             
-            # Store data for 3D visualization (either original RGB or PCA-transformed)
             self.image_processor.original_rgb_array = original_rgb_array
             self.image_processor.visualization_data = visualization_data
             
-            # Generate palette based on selected palette type
             palette = self._generate_palette(self.current_palette_name, 10)
             
             logger.info(f"[Thread] Calling segment_image() with palette: {self.current_palette_name}...")
-            # Pass PCA data to the model if available
             segmented_image = model.segment_image(original, shared_palette=palette, pca_data=pca_data)
             logger.info(f"[Thread] segment_image() completed")
             
             logger.debug("[Thread] Storing segmented image...")
             self.image_processor.current_image = segmented_image
             
-            # Update PCA info label
             if pca_info:
                 self.pca_info_label.config(text=pca_info, fg=Theme.ACCENT)
             else:
@@ -498,11 +459,9 @@ class ImageSegmentationApplication:
             self.is_processing = True
         
         if not self.is_processing and self.processing_thread and not self.processing_thread.is_alive():
-            # Update status to done
             self.status_indicator.config(text="●", fg=Theme.DONE)
             self.status_label.config(text=f"Processing complete", fg=Theme.TEXT)
             
-            # Update model info label
             if self.active_model_name:
                 model_names = {'kmeans': 'K-Means', 'gmm': 'GMM', 'meanshift': 'MeanShift', 'spectral': 'Spectral'}
                 self.model_info_label.config(
@@ -510,7 +469,6 @@ class ImageSegmentationApplication:
                     fg=Theme.get_model_color(self.active_model_name)
                 )
             
-            # Re-enable model buttons
             self._enable_model_buttons()
             self.update_button_states()
             
@@ -526,31 +484,24 @@ class ImageSegmentationApplication:
         self.spectral_button.set_active(self.active_model_name == 'spectral')
     
     def _disable_model_buttons(self):
-
         self.kmeans_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.gmm_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.meanshift_button.button.config(state=DISABLED, fg=Theme.DISABLED)
         self.spectral_button.button.config(state=DISABLED, fg=Theme.DISABLED)
     
     def _enable_model_buttons(self):
-
         self.kmeans_button.button.config(state='normal', fg='#000000')
         self.gmm_button.button.config(state='normal', fg='#000000')
         self.meanshift_button.button.config(state='normal', fg='#000000')
         self.spectral_button.button.config(state='normal', fg='#000000')
     
     def _generate_palette(self, palette_name: str, n_colors: int):
-
         try:
-            # Get colormap from matplotlib
             colormap = cm.get_cmap(palette_name)
             
-            # Generate n_colors evenly spaced from the colormap
             colors = []
             for i in range(n_colors):
-                # Get color at position i/n_colors (0 to 1)
                 rgba = colormap(i / max(1, n_colors - 1))
-                # Convert RGBA to RGB and scale to 0-255
                 r = int(rgba[0] * 255)
                 g = int(rgba[1] * 255)
                 b = int(rgba[2] * 255)
@@ -559,7 +510,6 @@ class ImageSegmentationApplication:
             return np.array(colors, dtype=np.uint8)
         except Exception as e:
             logger.warning(f"Could not load colormap '{palette_name}', using viridis: {e}")
-            # Fallback to viridis
             colormap = cm.get_cmap('viridis')
             colors = []
             for i in range(n_colors):
@@ -574,19 +524,15 @@ class ImageSegmentationApplication:
         current_image = self.image_processor.get_current_image()
         original_image = self.image_processor.original_image
         
-        # Display images based on segmentation state
         if current_image is None:
-            # Before segmentation: show only original image on left
             self.comparison_canvas.display_images(original_image, None)
         else:
-            # After segmentation: show both original and segmented
             self.comparison_canvas.display_images(original_image, current_image)
         
         if not self.is_processing:
             self.status_label.config(text="Ready")
 
     def compare_all_models(self):
-
         import subprocess
         try:
             script_path = os.path.join(os.getcwd(), 'test_clustering.py')
@@ -594,17 +540,12 @@ class ImageSegmentationApplication:
         except Exception as e:
             messagebox.showerror("Error", f"Could not launch comparison script: {e}")
     
-    
-    # ==================== BONUS FEATURES ====================
-    
     def show_3d_visualization(self):
-
         if self.image_processor.current_image is None:
             messagebox.showwarning("Warning", "No segmented image available. Process an image first.")
             return
         
         try:
-            # Get pixel data from current segmented image
             current = self.image_processor.current_image
             if current is None:
                 messagebox.showwarning("Warning", "No current image available")
@@ -613,7 +554,6 @@ class ImageSegmentationApplication:
             pixels = current.getdata()
             pixel_list = list(pixels)
             
-            # Extract RGB values
             rgb_data = []
             for pixel in pixel_list:
                 if isinstance(pixel, tuple):
@@ -622,12 +562,10 @@ class ImageSegmentationApplication:
             import numpy as np
             rgb_array = np.array(rgb_data)
             
-            # Get cluster labels from the segmented image (use color quantization)
             from sklearn.cluster import KMeans as SKKMeans
             kmeans = SKKMeans(n_clusters=10, random_state=42, n_init=10)
             labels = kmeans.fit_predict(rgb_array)
             
-            # Visualize
             viz = Cluster3DVisualization()
             viz.plot_clusters_3d_with_centers(rgb_array, labels, kmeans.cluster_centers_)
         except Exception as e:
@@ -635,7 +573,6 @@ class ImageSegmentationApplication:
             logger.error(f"3D visualization error: {e}", exc_info=True)
     
     def export_3d_clusters(self):
-
         if self.image_processor.current_image is None:
             messagebox.showwarning("Warning", "No segmented image available.")
             return
@@ -650,7 +587,6 @@ class ImageSegmentationApplication:
             from mpl_toolkits.mplot3d import Axes3D
             from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
             
-            # Use visualization data (either original RGB or PCA-transformed) for 3D
             if not hasattr(self.image_processor, 'visualization_data') or self.image_processor.visualization_data is None:
                 messagebox.showerror("Error", "Visualization data not available. Please reprocess the image.")
                 return
@@ -660,7 +596,6 @@ class ImageSegmentationApplication:
             original_rgb_array = self.image_processor.original_rgb_array if hasattr(self.image_processor, 'original_rgb_array') else None
             pca_transformer = self.image_processor.pca_transformer if hasattr(self.image_processor, 'pca_transformer') else None
             
-            # Get labels and centers from the active model
             model = self.clustering_models[self.active_model_name]
             
             if self.active_model_name == 'kmeans':
@@ -668,7 +603,6 @@ class ImageSegmentationApplication:
                 centers = model.kmeans.cluster_centers_
                 n_clusters = model.n_clusters
                 
-                # Transform centers to PCA space if needed
                 if is_pca_data and pca_transformer and centers is not None:
                     centers = pca_transformer.transform(centers)
                     logger.debug(f"[3D] K-Means centers transformed to PCA space")
@@ -680,7 +614,6 @@ class ImageSegmentationApplication:
                 centers = model.gmm.means_
                 n_clusters = model.n_components
                 
-                # Transform centers to PCA space if needed
                 if is_pca_data and pca_transformer and centers is not None:
                     centers = pca_transformer.transform(centers)
                     logger.debug(f"[3D] GMM centers transformed to PCA space")
@@ -693,7 +626,6 @@ class ImageSegmentationApplication:
                     return
                 labels = model.labels
                 n_clusters = len(np.unique(labels))
-                # Compute centroids for spectral (using original RGB data)
                 centers = []
                 for i in range(n_clusters):
                     cluster_points = original_rgb_array[labels == i]
@@ -701,7 +633,6 @@ class ImageSegmentationApplication:
                         centers.append(cluster_points.mean(axis=0))
                 centers = np.array(centers) if centers else None
                 
-                # Transform centers to PCA space if needed
                 if is_pca_data and pca_transformer and centers is not None:
                     centers = pca_transformer.transform(centers)
                     logger.debug(f"[3D] Spectral centers transformed to PCA space")
@@ -713,11 +644,9 @@ class ImageSegmentationApplication:
                     messagebox.showerror("Error", "MeanShift clustering labels not available.")
                     return
                 labels = model.labels
-                # Get original centers from model (they're in RGB space)
                 centers = model.cluster_centers if hasattr(model, 'cluster_centers') else None
                 n_clusters = len(np.unique(labels))
                 
-                # Transform centers to PCA space if needed
                 if is_pca_data and pca_transformer and centers is not None:
                     centers = pca_transformer.transform(centers)
                     logger.debug(f"[3D] MeanShift centers transformed to PCA space")
@@ -728,10 +657,8 @@ class ImageSegmentationApplication:
                 messagebox.showerror("Error", f"Unknown model: {self.active_model_name}")
                 return
             
-            # Validate labels match RGB data size
             if len(labels) != len(rgb_array):
                 logger.warning(f"[3D] Label mismatch: {len(labels)} labels vs {len(rgb_array)} RGB points. Recomputing labels...")
-                # Fallback: predict labels on full RGB data
                 try:
                     labels = model.predict(rgb_array) if hasattr(model, 'predict') else labels[:len(rgb_array)]
                     n_clusters = len(np.unique(labels))
@@ -742,11 +669,9 @@ class ImageSegmentationApplication:
             
             logger.info(f"[3D] Preparing visualization: {n_clusters} clusters, {len(rgb_array)} points")
             
-            # Create 3D plot
             fig = plt.figure(figsize=(12, 9), dpi=100)
             ax = fig.add_subplot(111, projection='3d')
             
-            # Plot each cluster with different colors
             colors = plt.cm.viridis(np.linspace(0, 1, max(n_clusters, 2)))
             
             for i in range(n_clusters):
@@ -756,10 +681,8 @@ class ImageSegmentationApplication:
                              c=[colors[i]], label=f'Cluster {i}', s=10, alpha=0.6)
                     logger.debug(f"[3D] Cluster {i}: {len(cluster_points)} points")
             
-            # Plot cluster centers if available
             if centers is not None and len(centers) > 0:
                 try:
-                    # Ensure centers have correct shape
                     if len(centers.shape) == 1:
                         centers = centers.reshape(-1, 3)
                     ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2],
@@ -773,7 +696,6 @@ class ImageSegmentationApplication:
             ax.set_ylabel('Green', fontsize=12, fontweight='bold')
             ax.set_zlabel('Blue', fontsize=12, fontweight='bold')
             
-            # Update title based on data type
             data_type_label = "PCA-transformed" if is_pca_data else "RGB"
             ax.set_title('3D Cluster Visualization\n' + 
                        f'Model: {self.active_model_name.upper()} | Clusters: {n_clusters} | Data: {data_type_label}',
@@ -785,7 +707,6 @@ class ImageSegmentationApplication:
             
             plt.tight_layout()
             
-            # Create window to display plot
             plot_window = Toplevel(self.window)
             plot_window.title(f"3D Cluster Visualization - {self.active_model_name.upper()}")
             plot_window.geometry("1000x800")
@@ -845,18 +766,15 @@ class ImageSegmentationApplication:
             close_btn.pack(side='left', padx=5)
             
             logger.info("[3D] Visualization complete")
-            
         except Exception as e:
             messagebox.showerror("Error", f"Could not export 3D visualization:\n{str(e)}")
             logger.error(f"[3D] Export error: {e}", exc_info=True)
     
     def manage_palettes(self):
-
         palette_window = Toplevel(self.window)
         palette_window.title("Available Color Palettes")
         palette_window.geometry("500x400")
         
-        # Matplotlib colormaps
         palettes_list = [
             'viridis', 'plasma', 'inferno', 'cool', 'hot',
             'spring', 'summer', 'autumn', 'winter', 'twilight'
@@ -865,7 +783,6 @@ class ImageSegmentationApplication:
         Label(palette_window, text="Available Matplotlib Colormaps:", font=("Segoe UI", 11, "bold")).pack(pady=10)
         Label(palette_window, text="Click to select a palette for your next segmentation", font=("Segoe UI", 9)).pack(pady=(0, 10))
         
-        # Listbox with scrollbar
         frame = Frame(palette_window)
         frame.pack(fill=BOTH, expand=True, padx=10, pady=10)
         
@@ -879,7 +796,6 @@ class ImageSegmentationApplication:
         for palette in palettes_list:
             listbox.insert(END, palette)
         
-        # Select current palette
         try:
             idx = palettes_list.index(self.current_palette_name)
             listbox.selection_set(idx)
@@ -901,13 +817,11 @@ class ImageSegmentationApplication:
         ModelButton(button_frame, "Close", palette_window.destroy).grid_layout(row=0, column=1, padx=5)
     
     def show_pca_analysis(self):
-
         if self.image_processor.original_image is None:
             messagebox.showwarning("Warning", "No image loaded")
             return
         
         try:
-            # Get pixel data
             original = self.image_processor.original_image
             pixels = original.getdata()
             pixel_list = list(pixels)
@@ -920,11 +834,9 @@ class ImageSegmentationApplication:
             import numpy as np
             rgb_array = np.array(rgb_data)
             
-            # Apply PCA
             pca = PCAPreprocessing(n_components=3)
             pca_data = pca.fit_transform(rgb_array)
             
-            # Show analysis
             analysis_window = Toplevel(self.window)
             analysis_window.title("PCA Analysis Report")
             analysis_window.geometry("500x400")
@@ -932,7 +844,6 @@ class ImageSegmentationApplication:
             text_widget = Text(analysis_window, wrap='word', padx=10, pady=10)
             text_widget.pack(fill=BOTH, expand=True)
             
-            # Get summary
             variance_ratio = pca.get_explained_variance_ratio()
             total_variance = pca.get_total_variance_explained()
             
@@ -951,8 +862,6 @@ class ImageSegmentationApplication:
             logger.error(f"PCA analysis error: {e}", exc_info=True)
     
     def save_result_advanced(self):
-
-        # Check if we have an image to save
         image_to_save = self.image_processor.current_image or self.image_processor.original_image
         
         if image_to_save is None:
@@ -968,11 +877,9 @@ class ImageSegmentationApplication:
         save_window.resizable(False, False)
         save_window.configure(bg=Theme.PANEL)
         
-        # Make window modal
         save_window.transient(self.window)
         save_window.grab_set()
         
-        # Title
         title_label = Label(
             save_window, 
             text="📁 Advanced Save Options",
@@ -982,15 +889,12 @@ class ImageSegmentationApplication:
         )
         title_label.pack(pady=15, padx=15, fill='x')
         
-        # Separator
         sep1 = Frame(save_window, bg=Theme.MUTED, height=1)
         sep1.pack(fill='x', padx=10)
         
-        # Content frame
         content_frame = Frame(save_window, bg=Theme.PANEL)
         content_frame.pack(fill='both', expand=True, padx=15, pady=15)
         
-        # Format selection
         Label(content_frame, text="📷 Image Format:", font=("Segoe UI", 11, "bold"), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w', pady=(0, 8))
         
         format_var = StringVar(value="png")
@@ -1022,7 +926,6 @@ class ImageSegmentationApplication:
         
         Label(quality_frame, text="JPEG Quality:", font=("Segoe UI", 10, "bold"), bg=Theme.PANEL, fg=Theme.TEXT).pack(anchor='w')
         
-        # Create quality slider manually (fix the IntVar issue)
         quality_var = IntVar(value=95)
         quality_slider_container = Frame(quality_frame, bg=Theme.PANEL)
         quality_slider_container.pack(fill='x', pady=5)
@@ -1053,7 +956,6 @@ class ImageSegmentationApplication:
         )
         quality_value_label.pack(side=LEFT, padx=10)
         
-        # Auto-naming option
         auto_name_var = IntVar(value=1)
         Checkbutton(
             content_frame,
@@ -1067,7 +969,6 @@ class ImageSegmentationApplication:
             activeforeground=Theme.TEXT
         ).pack(anchor='w', pady=10)
         
-        # Info text
         info_label = Label(
             content_frame,
             text="ℹ️  PNG: Best quality, larger file. JPEG: Smaller file, slight quality loss.",
@@ -1080,11 +981,9 @@ class ImageSegmentationApplication:
         info_label.pack(pady=10, anchor='w')
         
         def save_with_format():
-
             format_choice = format_var.get()
             quality = quality_var.get()
             
-            # Determine file extension
             if format_choice == "jpg":
                 ext = "jpg"
                 file_types = (("JPEG images", "*.jpg"), ("All files", "*.*"))
@@ -1095,32 +994,24 @@ class ImageSegmentationApplication:
                 ext = "png"
                 file_types = (("PNG images", "*.png"), ("All files", "*.*"))
             
-            # Generate filename if auto-naming is enabled
             if auto_name_var.get():
-                # Get original image filename without extension
                 original_filename = "image"
                 if hasattr(self.image_processor, 'original_image_path') and self.image_processor.original_image_path:
                     original_filename = os.path.splitext(os.path.basename(self.image_processor.original_image_path))[0]
                 
-                # Get model name
                 model_name = self.active_model_name or "model"
                 
-                # Get palette name
                 palette_name = self.current_palette_name or "viridis"
                 
-                # Extract parameters from params_info_label and format them
                 params_text = self.params_info_label.cget("text")
                 params_str = ""
                 
                 if params_text:
-                    # Parse parameters: "Clusters: 5 | n_init: 30 | max_iter: 500 | Palette: viridis"
-                    # Convert to: "clusters-5_n_init-30_max_iter-500"
                     parts = params_text.split(" | ")
                     param_list = []
                     
                     for part in parts:
-                        if "Palette:" not in part:  # Skip palette in this loop (we add it separately)
-                            # Convert "Clusters: 5" to "clusters-5"
+                        if "Palette:" not in part:
                             if ": " in part:
                                 key, value = part.split(": ", 1)
                                 key_clean = key.lower().replace(" ", "_")
@@ -1130,16 +1021,12 @@ class ImageSegmentationApplication:
                     if param_list:
                         params_str = "_" + "_".join(param_list)
                 
-                # Create filename with all components:
-                # segmented_<original>_<model>_<params>_palette-<palette>.<ext>
                 default_filename = f"segmented_{original_filename}_{model_name}{params_str}_palette-{palette_name}.{ext}"
                 
-                # Clean up filename (remove any problematic characters)
                 default_filename = default_filename.replace(" ", "-").replace(":", "-")
             else:
                 default_filename = f"segmented_image.{ext}"
             
-            # Open file dialog
             file_path = filedialog.asksaveasfilename(
                 parent=save_window,
                 defaultextension=f".{ext}",
@@ -1151,11 +1038,9 @@ class ImageSegmentationApplication:
             if file_path:
                 try:
                     if format_choice == "png_hires":
-                        # Save PNG with higher DPI metadata
                         image_to_save.save(file_path, "PNG", dpi=(300, 300))
                         messagebox.showinfo("✅ Success", f"High-resolution PNG saved:\n{file_path}")
                     elif format_choice == "jpg":
-                        # Convert to RGB if necessary (JPEG doesn't support RGBA)
                         if image_to_save.mode == 'RGBA':
                             rgb_image = image_to_save.convert('RGB')
                             rgb_image.save(file_path, "JPEG", quality=quality, optimize=True)
@@ -1165,7 +1050,7 @@ class ImageSegmentationApplication:
                     elif format_choice == "bmp":
                         image_to_save.save(file_path, "BMP")
                         messagebox.showinfo("✅ Success", f"BMP saved:\n{file_path}")
-                    else:  # png
+                    else:
                         image_to_save.save(file_path, "PNG")
                         messagebox.showinfo("✅ Success", f"PNG saved:\n{file_path}")
                     
@@ -1175,15 +1060,12 @@ class ImageSegmentationApplication:
                     import traceback
                     traceback.print_exc()
         
-        # Separator before buttons
         sep2 = Frame(save_window, bg=Theme.MUTED, height=1)
         sep2.pack(fill='x', padx=10, pady=10)
         
-        # Buttons frame
         button_frame = Frame(save_window, bg=Theme.PANEL)
         button_frame.pack(fill='x', padx=15, pady=15)
         
-        # Use standard Button widgets instead of ModelButton
         from tkinter import Button
         
         save_btn = Button(
@@ -1220,7 +1102,6 @@ class ImageSegmentationApplication:
         )
         cancel_btn.grid(row=0, column=1, padx=5, sticky='ew')
         
-        # Make columns equal width
         button_frame.grid_columnconfigure(0, weight=1)
         button_frame.grid_columnconfigure(1, weight=1)
 

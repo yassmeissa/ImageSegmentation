@@ -15,7 +15,7 @@ class SpectralClusteringModel(BaseClusteringModel):
         if logger:
             logger.info(f"Initializing Spectral Clustering with n_clusters={n_clusters}")
         self.n_clusters = n_clusters
-        self.affinity = 'nearest_neighbors'  # Always use nearest_neighbors
+        self.affinity = 'nearest_neighbors' 
         self.spectral = None
         self.cluster_centers = None
         self.labels = None
@@ -28,12 +28,10 @@ class SpectralClusteringModel(BaseClusteringModel):
         
         self.original_pixels = pixels_data.copy()
         
-        # Sous-échantillonnage ULTRA-AGRESSIF pour speed
         n_pixels = len(pixels_data)
         sample_rate = 1.0
         sample_indices = None
         
-        # Aggressive downsampling: max 2000 pixels for RBF affinity matrix
         if n_pixels > 5000:
             sample_rate = max(0.05, 2000 / n_pixels)
             if logger:
@@ -46,25 +44,22 @@ class SpectralClusteringModel(BaseClusteringModel):
         else:
             pixels_for_fit = pixels_data
         
-        # Créer et entraîner le modèle Spectral Clustering
         if logger:
             logger.info(f"[Spectral] Running Spectral Clustering with {self.n_clusters} clusters, affinity={self.affinity}...")
         
-        # Upgraded Spectral parameters - ULTRA-OPTIMIZED FOR SPEED
         self.spectral = SpectralClustering(
             n_clusters=self.n_clusters,
-            affinity=self.affinity,  # Use the configured affinity type
+            affinity=self.affinity,  
             assign_labels='kmeans',
-            n_init=5,          # Reduced from 8 for speed
+            n_init=5,          
             random_state=42,
-            n_neighbors=5       # Reduced from 10 for faster affinity matrix
+            n_neighbors=5       
         )
         sample_labels = self.spectral.fit_predict(pixels_for_fit)
         
         if logger:
             logger.info(f"[Spectral] fit_predict completed. Labels shape: {sample_labels.shape}")
         
-        # Si sous-échantillonné, prédire sur l'ensemble complet
         if sample_rate < 1.0:
             if logger:
                 logger.info("[Spectral] Predicting labels for full dataset...")
@@ -77,7 +72,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         else:
             self.labels = sample_labels
         
-        # Analyser les clusters trouvés
         unique_labels = np.unique(self.labels)
         if logger:
             logger.info(f"[Spectral] Unique labels found: {unique_labels}")
@@ -86,7 +80,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         if logger:
             logger.info(f"[Spectral] Number of clusters: {n_clusters}")
         
-        # Calculer les centres de clusters
         if logger:
             logger.info("[Spectral] Computing cluster centers...")
         
@@ -95,7 +88,6 @@ class SpectralClusteringModel(BaseClusteringModel):
             mask = self.labels == label_id
             count = np.sum(mask)
             
-            # Calculer la moyenne et convertir proprement en uint8
             center_float = pixels_data[mask].mean(axis=0)
             center = np.clip(np.round(center_float), 0, 255).astype(np.uint8)
             
@@ -115,7 +107,6 @@ class SpectralClusteringModel(BaseClusteringModel):
         if logger:
             logger.info("[Spectral] Model fitted successfully")
         
-        # Nettoyage mémoire
         gc.collect()
 
     def predict(self, pixels_data: np.ndarray) -> np.ndarray:
@@ -127,7 +118,6 @@ class SpectralClusteringModel(BaseClusteringModel):
                 logger.error("[Spectral] Model not fitted before prediction!")
             raise RuntimeError("Model must be fitted before prediction")
         
-        # Vérification de cohérence
         if len(self.labels) != len(pixels_data):
             if logger:
                 logger.error(f"[Spectral] Size mismatch! labels: {len(self.labels)}, pixels: {len(pixels_data)}")
@@ -159,7 +149,7 @@ class SpectralClusteringModel(BaseClusteringModel):
             logger.info(f"[Spectral] Changing parameters to n_clusters={n_clusters}")
         
         self.n_clusters = n_clusters
-        self.affinity = 'nearest_neighbors'  # Always nearest_neighbors
+        self.affinity = 'nearest_neighbors'  
         self.spectral = None
         self.is_fitted = False
         self.name = f"Spectral (k={n_clusters})"

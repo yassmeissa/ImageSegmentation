@@ -16,10 +16,8 @@ class PCAPreprocessing:
     def fit_transform(self, pixels):
         self.original_shape = pixels.shape
         
-        # Normaliser les données
         pixels_scaled = self.scaler.fit_transform(pixels)
         
-        # Appliquer PCA
         pixels_transformed = self.pca.fit_transform(pixels_scaled)
         
         self.is_fitted = True
@@ -91,14 +89,12 @@ class PCAComparison:
             'pca_silhouette': None
         }
         
-        # Calculer les silhouettes si sklearn_metrics est disponible
         try:
             from sklearn.metrics import silhouette_score
             
             stats['original_silhouette'] = silhouette_score(pixels, labels_original)
             
             if labels_pca is not None:
-                # Besoin des pixels transformés pour calculer la silhouette avec PCA
                 pass
         except ImportError:
             pass

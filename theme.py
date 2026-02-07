@@ -2,32 +2,27 @@
 
 class Theme:
 
-    
-    # Core colors
-    BG = "#1e1e1e"              # Main background (dark)
-    PANEL = "#263238"           # Panel/button background
-    ACCENT = "#0d47a1"          # Primary accent (blue)
-    TEXT = "#ffffff"            # Main text color
-    MUTED = "#9e9e9e"           # Muted/secondary text
-    
-    # States
-    SUCCESS = "#4CAF50"          # Success state
-    HOVER = "#37474f"            # Hover state
-    DISABLED = "#424242"         # Disabled state
-    
-    # Canvas
-    CANVAS_BG = "#111111"        # Canvas background (darker)
-    CANVAS_BORDER = "#0d47a1"    # Canvas border accent
-    
-    # Model colors - distinct per algorithm
-    KMEANS_COLOR = "#FF6B6B"     # Red/coral for K-Means
-    GMM_COLOR = "#4ECDC4"        # Teal for GMM
-    MEANSHIFT_COLOR = "#FFD93D"  # Yellow for MeanShift
-    SPECTRAL_COLOR = "#A569BD"   # Purple for Spectral
-    
-    # Processing indicators
-    PROCESSING = "#FFA500"       # Orange for processing
-    DONE = "#4CAF50"             # Green for done
+    BG = "#1e1e1e"
+    PANEL = "#263238"
+    ACCENT = "#0d47a1"
+    TEXT = "#ffffff"
+    MUTED = "#9e9e9e"
+
+
+    SUCCESS = "#4CAF50"
+    HOVER = "#37474f"
+    DISABLED = "#424242"
+
+    CANVAS_BG = "#111111"
+    CANVAS_BORDER = "#0d47a1"
+
+    KMEANS_COLOR = "#FF6B6B"
+    GMM_COLOR = "#4ECDC4"
+    MEANSHIFT_COLOR = "#FFD93D"
+    SPECTRAL_COLOR = "#A569BD"
+
+    PROCESSING = "#FFA500"
+    DONE = "#4CAF50"             
     
     @staticmethod
     def get_button_style():

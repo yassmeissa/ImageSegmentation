@@ -84,7 +84,7 @@ class ColorPalette:
         colors = []
         for i in range(n_colors):
             hue = (i / n_colors) % 1.0
-            saturation = 0.4  # Moins saturé
+            saturation = 0.4 
             value = 0.95
             
             h = hue * 6.0
@@ -118,8 +118,8 @@ class ColorPalette:
         colors = []
         for i in range(n_colors):
             hue = (i / n_colors) % 1.0
-            saturation = 0.9  # Très saturé
-            value = 0.7  # Plus sombre
+            saturation = 0.9
+            value = 0.7
             
             h = hue * 6.0
             c = value * saturation
@@ -150,7 +150,7 @@ class ColorPalette:
     def _rainbow_palette(n_colors):
 
         colors = []
-        rainbow_hues = [0.0, 0.17, 0.33, 0.5, 0.67, 0.83]  # ROYGBV
+        rainbow_hues = [0.0, 0.17, 0.33, 0.5, 0.67, 0.83] 
         
         for i in range(n_colors):
             hue = rainbow_hues[i % len(rainbow_hues)]

@@ -19,10 +19,9 @@ class ImageDisplayCanvas:
         self.pan_x = 0
         self.pan_y = 0
         
-        # Bind events for zoom and drag
         self.canvas.bind("<MouseWheel>", self.zoom)
-        self.canvas.bind("<Button-4>", self.zoom)  # Linux scroll up
-        self.canvas.bind("<Button-5>", self.zoom)  # Linux scroll down
+        self.canvas.bind("<Button-4>", self.zoom)
+        self.canvas.bind("<Button-5>", self.zoom)
         self.canvas.bind("<ButtonPress-1>", self.start_drag)
         self.canvas.bind("<B1-Motion>", self.drag)
 
@@ -43,11 +42,9 @@ class ImageDisplayCanvas:
     def _render_image(self):
 
         if self.original_image is None:
-            # Clear canvas if no image
             self.canvas.delete("all")
             return
             
-        # Resize image to fit canvas while maintaining aspect ratio
         canvas_width = self.canvas.winfo_width()
         canvas_height = self.canvas.winfo_height()
         
@@ -64,7 +61,6 @@ class ImageDisplayCanvas:
         self.photo_image_reference = ImageTk.PhotoImage(resized_image)
         self.canvas.delete("all")
         
-        # Center the image with pan offset
         x = canvas_width / 2 + self.pan_x
         y = canvas_height / 2 + self.pan_y
         self.canvas.create_image(x, y, image=self.photo_image_reference)
@@ -74,14 +70,13 @@ class ImageDisplayCanvas:
         if self.original_image is None:
             return
         
-        # Determine zoom direction
         if event.num == 5 or event.delta < 0:
-            factor = 0.9  # Zoom out
+            factor = 0.9
         else:
-            factor = 1.1  # Zoom in
-        
+            factor = 1.1
+
         self.scale *= factor
-        self.scale = max(0.5, min(3.0, self.scale))  # Clamp between 0.5x and 3x
+        self.scale = max(0.5, min(3.0, self.scale)) 
         self._render_image()
 
     def start_drag(self, event):
@@ -100,9 +95,7 @@ class ImageDisplayCanvas:
 
 class ModelButton:
     def __init__(self, parent_frame: Frame, label: str, model_name: str = None, on_click=None):
-        # Handle the case where on_click is passed as a keyword argument
         if model_name is not None and callable(model_name) and on_click is None:
-            # on_click was passed as positional argument where model_name should be
             on_click = model_name
             model_name = None
         
@@ -116,7 +109,7 @@ class ModelButton:
             font=("Segoe UI", 11, "bold"),
             relief="flat",
             bg=self.button_color,
-            fg="#000000",  # Dark text on bright colored buttons
+            fg="#000000",  
             activebackground=self.button_color,
             padx=12,
             pady=8,
@@ -125,7 +118,6 @@ class ModelButton:
             borderwidth=0
         )
         
-        # Hover effects
         self.button.bind("<Enter>", self.on_hover)
         self.button.bind("<Leave>", self.on_leave)
         self.is_active = False
@@ -133,7 +125,6 @@ class ModelButton:
     def on_hover(self, event):
 
         if not self.is_active:
-            # Darken the button color on hover
             self.button.config(relief="raised", borderwidth=2)
 
     def on_leave(self, event):
@@ -168,7 +159,6 @@ class ParameterSlider:
         )
         self.label.pack(side=TOP, pady=5)
         
-        # Horizontal frame for slider and value
         controls_frame = Frame(self.slider_frame, bg=Theme.PANEL)
         controls_frame.pack(side=TOP, padx=5, pady=5)
         
@@ -219,47 +209,38 @@ class ComparisonCanvas:
         self.parent_frame = parent_frame
         self.width = width
         self.height = height
-        self.has_segmentation = False  # Track if we have a segmented image
-        
-        # Create container frame
+        self.has_segmentation = False  
+
         self.container = Frame(parent_frame, bg=Theme.BG)
-        
-        # Original image canvas
+
         self.canvas_original = ImageDisplayCanvas(self.container, width // 2 - 10, height)
         
-        # Separator (not packed yet)
         self.separator = Frame(self.container, bg=Theme.ACCENT, width=2)
         
-        # Segmented image canvas
         self.canvas_segmented = ImageDisplayCanvas(self.container, width // 2 - 10, height)
     
     def pack(self, **kwargs):
 
         self.container.pack(**kwargs)
-        # Initially show only original canvas
         self.canvas_original.canvas.pack(side=LEFT, fill='both', expand=True, padx=5)
     
     def display_images(self, original, segmented):
 
-        # Clear everything first (IMPORTANT)
         for widget in self.container.winfo_children():
             widget.pack_forget()
 
         if original is not None and segmented is None:
-            # BEFORE segmentation → original only (full width)
             self.canvas_original.canvas.pack(
                 side=LEFT, fill='both', expand=True, padx=5
             )
             
-            # Render after layout is calculated
             self.canvas_original.canvas.after(10, lambda: self.canvas_original.set_image(original, reset_view=True))
             self.canvas_segmented.set_image(None, reset_view=True)
 
             self.has_segmentation = False
 
         elif original is not None and segmented is not None:
-            # AFTER segmentation → original LEFT | segmented RIGHT
-            # Pack first so canvas gets correct dimensions before rendering
+
             self.canvas_original.canvas.pack(
                 side=LEFT, fill='both', expand=True, padx=5
             )
@@ -270,14 +251,12 @@ class ComparisonCanvas:
                 side=LEFT, fill='both', expand=True, padx=5
             )
             
-            # Render after layout is calculated (10ms delay allows Tkinter to compute dimensions)
             self.canvas_original.canvas.after(10, lambda: self.canvas_original.set_image(original, reset_view=True))
             self.canvas_segmented.canvas.after(10, lambda: self.canvas_segmented.set_image(segmented, reset_view=True))
 
             self.has_segmentation = True
 
         else:
-            # No image
             self.canvas_original.set_image(None, reset_view=True)
             self.canvas_segmented.set_image(None, reset_view=True)
             self.has_segmentation = False

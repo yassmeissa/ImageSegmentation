@@ -1,5 +1,3 @@
-
-
 import warnings
 warnings.filterwarnings('ignore')
 import numpy as np
@@ -43,7 +41,7 @@ def generate_palette(palette_name: str, n_colors: int):
             colors.append([r, g, b])
         return np.array(colors, dtype=np.uint8)
     except Exception as e:
-        print(f"⚠️ Palette '{palette_name}' non trouvée, utilisation de 'viridis'")
+        print(f"Palette '{palette_name}' non trouvée, utilisation de 'viridis'")
         colormap = cm.get_cmap('viridis')
         colors = []
         for i in range(n_colors):
@@ -67,7 +65,6 @@ def select_palette():
     if not palette_choice:
         return 'viridis'
     
-    # Si c'est un numéro
     try:
         idx = int(palette_choice) - 1
         if 0 <= idx < len(palettes):
@@ -75,11 +72,10 @@ def select_palette():
     except ValueError:
         pass
     
-    # Si c'est un nom
     if palette_choice in palettes:
         return palette_choice
     
-    print(f"⚠️ Palette inconnue, utilisation de 'viridis'")
+    print(f"Palette inconnue, utilisation de 'viridis'")
     return 'viridis'
 
 def select_and_configure_kmeans(image):
@@ -93,10 +89,10 @@ def select_and_configure_kmeans(image):
     try:
         n_clusters = int(clusters_input) if clusters_input else AppConfig.DEFAULT_KMEANS_CLUSTERS
         if not (AppConfig.CLUSTERS_MIN <= n_clusters <= AppConfig.CLUSTERS_MAX):
-            print(f"⚠️ Valeur hors limites, utilisation du défaut: {AppConfig.DEFAULT_KMEANS_CLUSTERS}")
+            print(f"Valeur hors limites, utilisation du défaut: {AppConfig.DEFAULT_KMEANS_CLUSTERS}")
             n_clusters = AppConfig.DEFAULT_KMEANS_CLUSTERS
     except ValueError:
-        print(f"⚠️ Valeur invalide, utilisation du défaut: {AppConfig.DEFAULT_KMEANS_CLUSTERS}")
+        print(f"Valeur invalide, utilisation du défaut: {AppConfig.DEFAULT_KMEANS_CLUSTERS}")
         n_clusters = AppConfig.DEFAULT_KMEANS_CLUSTERS
     
     # n_init
@@ -118,7 +114,7 @@ def select_and_configure_kmeans(image):
     # Palette
     palette = select_palette()
     
-    print(f"\n✓ Configuration K-Means:")
+    print(f"\n Configuration K-Means:")
     print(f"  - Clusters: {n_clusters}")
     print(f"  - n_init: {n_init}")
     print(f"  - max_iter: {max_iter}")
@@ -166,7 +162,7 @@ def select_and_configure_gmm(image):
     # Palette
     palette = select_palette()
     
-    print(f"\n✓ Configuration GMM:")
+    print(f"\n Configuration GMM:")
     print(f"  - Composantes: {n_components}")
     print(f"  - max_iter: {max_iter}")
     print(f"  - Covariance: {cov_type}")
@@ -200,7 +196,7 @@ def select_and_configure_meanshift(image):
     # Palette
     palette = select_palette()
     
-    print(f"\n✓ Configuration MeanShift:")
+    print(f"\n Configuration MeanShift:")
     print(f"  - Bandwidth: {bandwidth}")
     print(f"  - Palette: {palette}")
     
@@ -231,7 +227,7 @@ def select_and_configure_spectral(image):
     # Palette
     palette = select_palette()
     
-    print(f"\n✓ Configuration Spectral:")
+    print(f"\n Configuration Spectral:")
     print(f"  - Clusters: {n_clusters}")
     print(f"  - Affinity: nearest_neighbors (fixé)")
     print(f"  - Palette: {palette}")
@@ -349,7 +345,7 @@ def main():
     
     display_result(img_array, segmented, title)
     
-    print("\n✅ Test terminé!")
+    print("\nTest terminé!")
 
 if __name__ == "__main__":
     main()

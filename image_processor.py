@@ -8,7 +8,7 @@ class ImageProcessor:
     def __init__(self):
         self.current_image = Image.new("RGB", (600, 600), 'lightgrey')
         self.original_image = self.current_image
-        # PCA preprocessing attributes
+
         self.pca_data = None
         self.use_pca = False
         self.pca_transformer = None

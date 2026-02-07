@@ -7,15 +7,14 @@ class KMeansClusteringModel(BaseClusteringModel):
     def __init__(self, n_clusters: int = 3):
         super().__init__(f"K-Means (k={n_clusters})", use_vibrant_colors=True)
         self.n_clusters = n_clusters
-        # Ultra-optimized K-Means: aggressive convergence for sharp results
         self.kmeans = KMeans(
             n_clusters=n_clusters, 
             random_state=42, 
-            n_init=30,          # Increased from 10 to 30 (exhaustive search)
-            max_iter=500,       # Increased from 300 to 500 (very thorough)
-            algorithm='lloyd',  # Most precise algorithm
+            n_init=30,         
+            max_iter=500,      
+            algorithm='lloyd',  
             verbose=0,
-            tol=1e-4            # Tighter convergence tolerance
+            tol=1e-4            
         )
         self.cluster_centers = None
 

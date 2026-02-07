@@ -7,14 +7,12 @@ class GMMClusteringModel(BaseClusteringModel):
     def __init__(self, n_components: int = 3):
         super().__init__(f"GMM (k={n_components})", use_vibrant_colors=True)
         self.n_components = n_components
-        # Balanced GMM: good quality, FAST, and DISTINCTIVE
-        # Using 'full' covariance for more interesting results
         self.gmm = GaussianMixture(
             n_components=n_components, 
             random_state=42, 
-            n_init=5,           # Optimized: 8->5 for speed
-            max_iter=100,       # Optimized: 150->100 for faster convergence
-            covariance_type='diag',  # Optimized: 'full'->'diag' for ~3x speed boost
+            n_init=5,          
+            max_iter=100,       
+            covariance_type='diag',  
             warm_start=False,
             tol=1e-3
         )

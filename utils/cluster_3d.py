@@ -12,11 +12,9 @@ class Cluster3DVisualization:
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         
-        # Récupérer les couleurs uniques
         unique_labels = np.unique(labels)
         colors = cm.rainbow(np.linspace(0, 1, len(unique_labels)))
         
-        # Plotter chaque cluster
         for idx, label in enumerate(unique_labels):
             mask = labels == label
             cluster_pixels = pixels[mask]
@@ -45,11 +43,9 @@ class Cluster3DVisualization:
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         
-        # Récupérer les couleurs uniques
         unique_labels = np.unique(labels)
         colors = cm.rainbow(np.linspace(0, 1, len(unique_labels)))
         
-        # Plotter chaque cluster
         for idx, label in enumerate(unique_labels):
             mask = labels == label
             cluster_pixels = pixels[mask]
@@ -64,7 +60,6 @@ class Cluster3DVisualization:
                 alpha=0.6
             )
         
-        # Plotter les centres
         ax.scatter(
             centers[:, 0],
             centers[:, 1],
@@ -91,11 +86,9 @@ class Cluster3DVisualization:
         fig = plt.figure(figsize=(12, 8))
         ax = fig.add_subplot(111, projection='3d')
         
-        # Récupérer les couleurs uniques
         unique_labels = np.unique(labels)
         colors = cm.rainbow(np.linspace(0, 1, len(unique_labels)))
         
-        # Plotter chaque cluster
         for idx, label in enumerate(unique_labels):
             mask = labels == label
             cluster_pixels = pixels[mask]

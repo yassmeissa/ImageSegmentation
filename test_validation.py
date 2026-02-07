@@ -58,7 +58,7 @@ class ValidationReport:
             print(f"{'─'*80}")
             
             for test in tests:
-                status = "✅ OK" if test['success'] else "❌ ERREUR"
+                status = "OK" if test['success'] else "ERREUR"
                 total_tests += 1
                 if test['success']:
                     total_success += 1
@@ -116,13 +116,13 @@ def test_kmeans(image, image_name, report):
         segmented = model.segment_image(image, shared_palette=palette)
         
         elapsed = time.time() - start
-        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        print(f"  Succès ({elapsed:.2f}s)")
         
         report.add_result('K-Means', image_name, config, elapsed, success=True)
         
     except Exception as e:
         elapsed = time.time() - start
-        print(f"  ❌ Erreur: {str(e)}")
+        print(f"  Erreur: {str(e)}")
         report.add_result('K-Means', image_name, config, elapsed, success=False, error=str(e))
 
 def test_gmm(image, image_name, report):
@@ -144,13 +144,13 @@ def test_gmm(image, image_name, report):
         segmented = model.segment_image(image, shared_palette=palette)
         
         elapsed = time.time() - start
-        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        print(f"  Succès ({elapsed:.2f}s)")
         
         report.add_result('GMM', image_name, config, elapsed, success=True)
         
     except Exception as e:
         elapsed = time.time() - start
-        print(f"  ❌ Erreur: {str(e)}")
+        print(f"  Erreur: {str(e)}")
         report.add_result('GMM', image_name, config, elapsed, success=False, error=str(e))
 
 def test_meanshift(image, image_name, report):
@@ -170,13 +170,13 @@ def test_meanshift(image, image_name, report):
         segmented = model.segment_image(image, shared_palette=palette)
         
         elapsed = time.time() - start
-        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        print(f"  Succès ({elapsed:.2f}s)")
         
         report.add_result('MeanShift', image_name, config, elapsed, success=True)
         
     except Exception as e:
         elapsed = time.time() - start
-        print(f"  ❌ Erreur: {str(e)}")
+        print(f"  Erreur: {str(e)}")
         report.add_result('MeanShift', image_name, config, elapsed, success=False, error=str(e))
 
 def test_spectral(image, image_name, report):
@@ -196,13 +196,13 @@ def test_spectral(image, image_name, report):
         segmented = model.segment_image(image, shared_palette=palette)
         
         elapsed = time.time() - start
-        print(f"  ✅ Succès ({elapsed:.2f}s)")
+        print(f"  Succès ({elapsed:.2f}s)")
         
         report.add_result('Spectral', image_name, config, elapsed, success=True)
         
     except Exception as e:
         elapsed = time.time() - start
-        print(f"  ❌ Erreur: {str(e)}")
+        print(f"  Erreur: {str(e)}")
         report.add_result('Spectral', image_name, config, elapsed, success=False, error=str(e))
 
 def display_comparison(image, segmented_results):
@@ -280,7 +280,7 @@ def main():
     report.end_time = time.time()
     report.print_report()
     
-    print("\n✅ Tests de validation terminés!")
+    print("\nTests de validation terminés!")
 
 if __name__ == "__main__":
     main()

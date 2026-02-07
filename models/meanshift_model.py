@@ -31,19 +31,15 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         sample_rate = 1.0
         sample_indices = None
         
-        # Check if using PCA data (typically has much smaller range)
         data_range = np.max(pixels_data) - np.min(pixels_data)
-        is_pca_data = data_range < 50  # PCA data typically has range < 20-30, RGB has 0-255
+        is_pca_data = data_range < 50  
         
         if logger:
             logger.debug(f"[MeanShift] Data range: {data_range:.2f}, detected PCA: {is_pca_data}")
         
-        # Less aggressive downsampling for PCA to preserve cluster structure
         if is_pca_data:
-            # For PCA data, use more conservative downsampling
             max_samples = 5000
         else:
-            # For RGB data, use aggressive downsampling
             max_samples = 3000
         
         if n_pixels > 8000:
@@ -58,17 +54,14 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         else:
             pixels_for_fit = pixels_data
         
-        # Utiliser le paramètre bandwidth spécifié ou auto-estimer pour PCA
         bandwidth = self.bandwidth_param
         
-        # For PCA data, auto-estimate bandwidth if default is used
         if is_pca_data and bandwidth <= 25.0:
             try:
                 bandwidth = estimate_bandwidth(pixels_for_fit, quantile=0.2, n_samples=min(500, len(pixels_for_fit)))
                 if logger:
                     logger.info(f"[MeanShift] Auto-estimated bandwidth for PCA data: {bandwidth:.4f}")
             except Exception as e:
-                # Fallback: estimate manually for PCA space
                 data_std = np.std(pixels_for_fit)
                 bandwidth = data_std * 0.3
                 if logger:
@@ -80,22 +73,19 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         if logger:
             logger.info(f"[MeanShift] Using bandwidth: {bandwidth}")
         
-        # Créer et entraîner le modèle MeanShift
         if logger:
             logger.info("[MeanShift] Running MeanShift...")
         
-        # ULTRA-OPTIMIZED MeanShift parameters
         self.meanshift = MeanShift(
             bandwidth=bandwidth, 
             n_jobs=-1,
-            cluster_all=False  # Only include points in neighborhood (sharper clusters)
+            cluster_all=False  
         )
         sample_labels = self.meanshift.fit_predict(pixels_for_fit)
         
         if logger:
             logger.info(f"[MeanShift] fit_predict completed. Labels shape: {sample_labels.shape}")
         
-        # Si sous-échantillonné, prédire sur l'ensemble complet
         if sample_rate < 1.0:
             if logger:
                 logger.info("[MeanShift] Predicting labels for full dataset...")
@@ -108,7 +98,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         else:
             self.labels = sample_labels
         
-        # Analyser les clusters trouvés
         unique_labels = np.unique(self.labels)
         if logger:
             logger.info(f"[MeanShift] Unique labels found: {unique_labels}")
@@ -117,7 +106,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         if logger:
             logger.info(f"[MeanShift] Number of clusters: {n_clusters}")
         
-        # Calculer les centres de clusters
         if logger:
             logger.info("[MeanShift] Computing cluster centers...")
         
@@ -126,11 +114,9 @@ class MeanShiftClusteringModel(BaseClusteringModel):
             mask = self.labels == label_id
             count = np.sum(mask)
             
-            # Calculer la moyenne
             center_float = pixels_data[mask].mean(axis=0)
             
-            # For PCA data, keep values as float (can be small)
-            # For RGB data, clip to 0-255
+
             if is_pca_data:
                 center = center_float.astype(np.float32)
             else:
@@ -152,7 +138,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
         if logger:
             logger.info("[MeanShift] Model fitted successfully")
         
-        # Nettoyage mémoire
         gc.collect()
 
     def predict(self, pixels_data: np.ndarray) -> np.ndarray:
@@ -164,7 +149,6 @@ class MeanShiftClusteringModel(BaseClusteringModel):
                 logger.error("[MeanShift] Model not fitted before prediction!")
             raise RuntimeError("Model must be fitted before prediction")
         
-        # Vérification de cohérence
         if len(self.labels) != len(pixels_data):
             if logger:
                 logger.error(f"[MeanShift] Size mismatch! labels: {len(self.labels)}, pixels: {len(pixels_data)}")
