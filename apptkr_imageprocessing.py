@@ -425,24 +425,27 @@ class ImageSegmentationApplication:
             original = self.image_processor.original_image
             logger.debug(f"[Thread] Image obtained: {original.size}")
             
+            # Extract and store original RGB data
+            pixels = original.getdata()
+            pixel_list = list(pixels)
+            rgb_data = []
+            for pixel in pixel_list:
+                if isinstance(pixel, tuple):
+                    rgb_data.append(pixel[:3])
+            original_rgb_array = np.array(rgb_data, dtype=np.float32)
+            
             # Apply PCA preprocessing if enabled
             pca_info = ""
             pca_data = None
+            visualization_data = original_rgb_array.copy()  # Default: use original RGB for 3D
+            
             if self.use_pca.get():
                 logger.info("[Thread] PCA preprocessing enabled, applying...")
                 try:
-                    # Get pixel data
-                    pixels = original.getdata()
-                    pixel_list = list(pixels)
-                    rgb_data = []
-                    for pixel in pixel_list:
-                        if isinstance(pixel, tuple):
-                            rgb_data.append(pixel[:3])
-                    rgb_array = np.array(rgb_data, dtype=np.float32)
-                    
                     # Apply PCA
                     pca = PCAPreprocessing(n_components=self.pca_components)
-                    pca_data = pca.fit_transform(rgb_array)
+                    pca_data = pca.fit_transform(original_rgb_array)
+                    visualization_data = pca_data  # Use PCA data for 3D visualization
                     
                     # Get variance explained
                     variance_ratio = pca.get_explained_variance_ratio()
@@ -461,6 +464,10 @@ class ImageSegmentationApplication:
                     pca_data = None
             else:
                 self.image_processor.use_pca = False
+            
+            # Store data for 3D visualization (either original RGB or PCA-transformed)
+            self.image_processor.original_rgb_array = original_rgb_array
+            self.image_processor.visualization_data = visualization_data
             
             # Generate palette based on selected palette type
             palette = self._generate_palette(self.current_palette_name, 10)
@@ -643,56 +650,99 @@ class ImageSegmentationApplication:
             from mpl_toolkits.mplot3d import Axes3D
             from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
             
-            # Get the currently segmented image to extract RGB data
-            segmented = self.image_processor.current_image
-            if segmented is None:
-                messagebox.showerror("Error", "No segmented image available")
+            # Use visualization data (either original RGB or PCA-transformed) for 3D
+            if not hasattr(self.image_processor, 'visualization_data') or self.image_processor.visualization_data is None:
+                messagebox.showerror("Error", "Visualization data not available. Please reprocess the image.")
                 return
             
-            pixels = segmented.getdata()
-            pixel_list = list(pixels)
+            rgb_array = self.image_processor.visualization_data
+            is_pca_data = self.image_processor.use_pca if hasattr(self.image_processor, 'use_pca') else False
+            original_rgb_array = self.image_processor.original_rgb_array if hasattr(self.image_processor, 'original_rgb_array') else None
+            pca_transformer = self.image_processor.pca_transformer if hasattr(self.image_processor, 'pca_transformer') else None
             
-            rgb_data = []
-            for pixel in pixel_list:
-                if isinstance(pixel, tuple):
-                    rgb_data.append(pixel[:3])
-            
-            rgb_array = np.array(rgb_data, dtype=np.float32)
-            
-            # Get labels from the active model (use stored labels from last fit)
+            # Get labels and centers from the active model
             model = self.clustering_models[self.active_model_name]
             
             if self.active_model_name == 'kmeans':
                 labels = model.kmeans.labels_
                 centers = model.kmeans.cluster_centers_
                 n_clusters = model.n_clusters
+                
+                # Transform centers to PCA space if needed
+                if is_pca_data and pca_transformer and centers is not None:
+                    centers = pca_transformer.transform(centers)
+                    logger.debug(f"[3D] K-Means centers transformed to PCA space")
+                
+                logger.debug(f"[3D] K-Means: {n_clusters} clusters, {len(labels)} labels")
+            
             elif self.active_model_name == 'gmm':
                 labels = model.gmm.labels_
                 centers = model.gmm.means_
                 n_clusters = model.n_components
+                
+                # Transform centers to PCA space if needed
+                if is_pca_data and pca_transformer and centers is not None:
+                    centers = pca_transformer.transform(centers)
+                    logger.debug(f"[3D] GMM centers transformed to PCA space")
+                
+                logger.debug(f"[3D] GMM: {n_clusters} components, {len(labels)} labels")
+            
             elif self.active_model_name == 'spectral':
+                if not hasattr(model, 'labels') or model.labels is None:
+                    messagebox.showerror("Error", "Spectral clustering labels not available.")
+                    return
                 labels = model.labels
                 n_clusters = len(np.unique(labels))
-                # For spectral clustering, compute centroids manually
+                # Compute centroids for spectral (using original RGB data)
                 centers = []
                 for i in range(n_clusters):
-                    cluster_points = rgb_array[labels == i]
+                    cluster_points = original_rgb_array[labels == i]
                     if len(cluster_points) > 0:
                         centers.append(cluster_points.mean(axis=0))
-                centers = np.array(centers)
+                centers = np.array(centers) if centers else None
+                
+                # Transform centers to PCA space if needed
+                if is_pca_data and pca_transformer and centers is not None:
+                    centers = pca_transformer.transform(centers)
+                    logger.debug(f"[3D] Spectral centers transformed to PCA space")
+                
+                logger.debug(f"[3D] Spectral: {n_clusters} clusters found")
+            
             elif self.active_model_name == 'meanshift':
+                if not hasattr(model, 'labels') or model.labels is None:
+                    messagebox.showerror("Error", "MeanShift clustering labels not available.")
+                    return
                 labels = model.labels
-                centers = model.cluster_centers
+                # Get original centers from model (they're in RGB space)
+                centers = model.cluster_centers if hasattr(model, 'cluster_centers') else None
                 n_clusters = len(np.unique(labels))
+                
+                # Transform centers to PCA space if needed
+                if is_pca_data and pca_transformer and centers is not None:
+                    centers = pca_transformer.transform(centers)
+                    logger.debug(f"[3D] MeanShift centers transformed to PCA space")
+                
+                logger.debug(f"[3D] MeanShift: {n_clusters} clusters found, centers: {centers is not None}")
+            
             else:
                 messagebox.showerror("Error", f"Unknown model: {self.active_model_name}")
                 return
             
-            # Create 3D plot with matplotlib
-            import matplotlib.pyplot as plt
-            from mpl_toolkits.mplot3d import Axes3D
-            from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+            # Validate labels match RGB data size
+            if len(labels) != len(rgb_array):
+                logger.warning(f"[3D] Label mismatch: {len(labels)} labels vs {len(rgb_array)} RGB points. Recomputing labels...")
+                # Fallback: predict labels on full RGB data
+                try:
+                    labels = model.predict(rgb_array) if hasattr(model, 'predict') else labels[:len(rgb_array)]
+                    n_clusters = len(np.unique(labels))
+                except Exception as e:
+                    logger.error(f"[3D] Could not recompute labels: {e}")
+                    messagebox.showerror("Error", f"Label dimension mismatch and recovery failed:\n{e}")
+                    return
             
+            logger.info(f"[3D] Preparing visualization: {n_clusters} clusters, {len(rgb_array)} points")
+            
+            # Create 3D plot
             fig = plt.figure(figsize=(12, 9), dpi=100)
             ax = fig.add_subplot(111, projection='3d')
             
@@ -704,39 +754,46 @@ class ImageSegmentationApplication:
                 if len(cluster_points) > 0:
                     ax.scatter(cluster_points[:, 0], cluster_points[:, 1], cluster_points[:, 2],
                              c=[colors[i]], label=f'Cluster {i}', s=10, alpha=0.6)
+                    logger.debug(f"[3D] Cluster {i}: {len(cluster_points)} points")
             
-            # Plot cluster centers
+            # Plot cluster centers if available
             if centers is not None and len(centers) > 0:
-                ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2],
-                          c='red', marker='*', s=500, edgecolors='black', linewidths=2,
-                          label='Centroids', zorder=10)
+                try:
+                    # Ensure centers have correct shape
+                    if len(centers.shape) == 1:
+                        centers = centers.reshape(-1, 3)
+                    ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2],
+                              c='red', marker='*', s=500, edgecolors='black', linewidths=2,
+                              label='Centroids', zorder=10)
+                    logger.debug(f"[3D] Added {len(centers)} centroids")
+                except Exception as e:
+                    logger.warning(f"[3D] Could not plot centers: {e}")
             
             ax.set_xlabel('Red', fontsize=12, fontweight='bold')
             ax.set_ylabel('Green', fontsize=12, fontweight='bold')
             ax.set_zlabel('Blue', fontsize=12, fontweight='bold')
-            ax.set_title('3D RGB Cluster Visualization\n' + 
-                       f'Model: {self.active_model_name.upper()} | Clusters: {n_clusters}',
+            
+            # Update title based on data type
+            data_type_label = "PCA-transformed" if is_pca_data else "RGB"
+            ax.set_title('3D Cluster Visualization\n' + 
+                       f'Model: {self.active_model_name.upper()} | Clusters: {n_clusters} | Data: {data_type_label}',
                        fontsize=14, fontweight='bold')
             
             ax.legend(loc='upper left', bbox_to_anchor=(1.05, 1), fontsize=9)
             ax.grid(True, alpha=0.3)
-            
-            # Set viewing angle
             ax.view_init(elev=20, azim=45)
             
             plt.tight_layout()
             
-            # Create a new window to display the plot
+            # Create window to display plot
             plot_window = Toplevel(self.window)
             plot_window.title(f"3D Cluster Visualization - {self.active_model_name.upper()}")
             plot_window.geometry("1000x800")
             
-            # Add buttons at the top
             button_frame = Frame(plot_window, bg=Theme.PANEL, height=50)
             button_frame.pack(fill='x', padx=10, pady=10)
             button_frame.pack_propagate(False)
             
-            # Embed matplotlib figure in Tkinter window
             canvas = FigureCanvasTkAgg(fig, master=plot_window)
             canvas.draw()
             canvas.get_tk_widget().pack(fill='both', expand=True, padx=10, pady=(0, 10))
@@ -787,9 +844,11 @@ class ImageSegmentationApplication:
             )
             close_btn.pack(side='left', padx=5)
             
+            logger.info("[3D] Visualization complete")
+            
         except Exception as e:
             messagebox.showerror("Error", f"Could not export 3D visualization:\n{str(e)}")
-            logger.error(f"3D export error: {e}", exc_info=True)
+            logger.error(f"[3D] Export error: {e}", exc_info=True)
     
     def manage_palettes(self):
 

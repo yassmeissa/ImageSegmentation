@@ -1,4 +1,7 @@
 
+
+import warnings
+warnings.filterwarnings('ignore')
 import numpy as np
 import matplotlib.pyplot as plt
 from PIL import Image
